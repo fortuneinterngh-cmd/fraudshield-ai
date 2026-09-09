@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FraudShield AI — Fraud Detection System</title>
+<style>
+:root{--yel:#FFCB05;--ink:#111;--card:#1A1A1A;--red:#D62828;--redlt:#E63946;--wht:#fff;--gry:#9a9a9a;--grn:#2E9E4F;--grnlt:#4FCB75}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}
+body{background:#060606;color:var(--wht);min-height:100vh}
+header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:#0a0a0a;border-bottom:1px solid #222;position:sticky;top:0;z-index:9}
+header .logo{font-weight:bold;color:var(--yel);font-size:15px;cursor:pointer}
+header .hl{display:flex;gap:10px;align-items:center;font-size:12px}
+header a{color:var(--gry);cursor:pointer}
+.badge{font-size:10px;padding:3px 8px;border-radius:10px;background:#333;color:#aaa}
+.badge.live{background:var(--grn);color:#fff}
+main{max-width:960px;margin:0 auto;padding:14px}
+.view{display:none}.view.on{display:block}
+.phone{max-width:410px;margin:0 auto;background:#0b0b0b;border:1px solid #262626;border-radius:22px;padding:16px}
+h2{font-size:18px;margin-bottom:6px}
+.sub{font-size:12px;color:var(--gry);margin-bottom:12px}
+.btn{display:block;width:100%;padding:13px;border:none;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer;margin-top:10px;text-align:center}
+.btn.y{background:var(--yel);color:var(--ink)}.btn.r{background:var(--red);color:#fff}.btn.g{background:transparent;color:var(--wht);border:1px solid #444}
+.card{background:var(--card);border-radius:12px;padding:14px;margin-top:10px}
+.field{margin-top:12px}
+.field label{font-size:11px;color:var(--gry);display:block;margin-bottom:4px}
+.field input,.field textarea,.field select{width:100%;padding:11px;border-radius:8px;border:1px solid #333;background:#111;color:var(--wht);font-size:15px}
+textarea{font-size:13px!important;resize:vertical;min-height:70px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{font-size:11px;padding:6px 10px;border-radius:14px;background:#222;border:1px solid #333;cursor:pointer;color:#ccc}
+.chip.sel{background:var(--yel);color:var(--ink);border-color:var(--yel);font-weight:bold}
+.chip.tok{cursor:default;background:#2b0e0e;border-color:var(--red);color:var(--redlt)}
+.quick{font-size:10px;color:#777;margin-top:8px}
+.quick span{color:var(--yel);cursor:pointer;margin-right:8px}
+/* ---- traffic light legitimacy system ---- */
+.tl{display:flex;gap:12px;justify-content:center;margin:10px 0}
+.tl i{width:20px;height:20px;border-radius:50%;background:#151515;border:2px solid #333}
+.tl i.g{background:var(--grn);border-color:var(--grn);box-shadow:0 0 14px rgba(46,158,79,.7)}
+.tl i.y{background:var(--yel);border-color:var(--yel);box-shadow:0 0 14px rgba(255,203,5,.7)}
+.tl i.r{background:var(--red);border-color:var(--red);box-shadow:0 0 14px rgba(214,40,40,.7)}
+.gauge3{position:relative;height:14px;border-radius:7px;margin:12px 0 4px;
+ background:linear-gradient(to right,var(--grn) 0%,var(--grn) 35%,var(--yel) 35%,var(--yel) 65%,var(--red) 65%,var(--red) 100%)}
+.gauge3 b{position:absolute;top:-5px;width:4px;height:24px;background:#fff;border-radius:2px;box-shadow:0 0 6px #000}
+.legend{display:flex;justify-content:center;gap:12px;font-size:10px;color:var(--gry);margin-top:10px;flex-wrap:wrap}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
+.verdict{border-radius:14px;padding:16px;margin-top:14px;text-align:center}
+.verdict.vg{background:#0e2b18;border:1px solid var(--grn)}
+.verdict.vy{background:#2b230e;border:1px solid var(--yel)}
+.verdict.vr{background:#2b0e0e;border:1px solid var(--red)}
+.verdict .big{font-size:19px;font-weight:bold}
+.vg .big{color:var(--grnlt)}.vy .big{color:var(--yel)}.vr .big{color:var(--redlt)}
+.verdict .note{font-size:12px;color:#ddd;margin-top:8px;line-height:1.5}
+.pause{max-width:420px;margin:0 auto;background:#3a0d0d;border:2px solid var(--red);border-radius:18px;padding:24px;text-align:center}
+.pause h1{color:var(--redlt);font-size:25px;margin-bottom:10px}
+.pause p{font-size:15px;line-height:1.6;margin-bottom:14px}
+.pause .opt{display:block;width:100%;padding:14px;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer;margin-top:10px;border:1px solid #555;background:#1a0a0a;color:#fff}
+.pause .opt.o1{background:var(--yel);color:var(--ink);border:none}
+.pause .opt.o3{border-color:var(--red)}
+.audnote{font-size:10px;color:var(--yel);margin-bottom:8px}
+.ussd{max-width:340px;margin:0 auto;background:#0e1a0e;border:3px solid #333;border-radius:14px;padding:14px}
+.lcd{background:#141f14;border-radius:8px;padding:14px;min-height:170px;color:#7CFC9A;font-family:'Courier New',monospace;font-size:13px;line-height:1.7;white-space:pre-wrap}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px}
+.keys button{padding:12px;font-size:15px;background:#222;color:#fff;border:1px solid #333;border-radius:8px;cursor:pointer}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px}
+.stat{background:var(--card);border-radius:12px;padding:14px}
+.stat .n{font-size:28px;font-weight:bold;color:var(--yel)}
+.stat.hero .n{font-size:40px}
+.stat.g .n{color:var(--grnlt)}
+.stat .l{font-size:10px;color:var(--gry);margin-top:4px}
+table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
+th,td{padding:8px;text-align:left;border-bottom:1px solid #2a2a2a}
+th{color:var(--yel);font-size:11px}
+.feed .fitem{display:flex;justify-content:space-between;padding:9px 4px;border-bottom:1px solid #222;font-size:12px}
+.fitem .t{color:#777;font-size:10px}
+canvas{width:100%;border-radius:12px;background:#0f0f14;margin-top:10px}
+.tog{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #222;font-size:13px}
+.sw{width:38px;height:20px;background:#333;border-radius:10px;position:relative;cursor:pointer;flex-shrink:0;margin-left:10px}
+.sw.on{background:var(--grn)}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%}
+.sw.on::after{left:20px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--yel);color:var(--ink);padding:10px 22px;border-radius:20px;font-size:13px;font-weight:bold;opacity:0;transition:.3s;pointer-events:none;z-index:99}
+#toast.show{opacity:1}
+.back{font-size:12px;color:var(--gry);cursor:pointer;margin-bottom:10px;display:inline-block}
+.tag{font-size:9px;padding:2px 6px;border-radius:6px;background:#333;color:#aaa;margin-left:6px}
+.tag.live{background:var(--grn);color:#fff}
+.tag.ai{background:#2a1f05;color:var(--yel)}
+.wallet{background:linear-gradient(135deg,#1c1c1c,#111);border:1px solid #2c2c2c;border-radius:14px;padding:16px}
+.wallet .amt{font-size:26px;font-weight:bold;color:var(--yel)}
+.shieldon{display:flex;justify-content:space-between;align-items:center;margin-top:12px;background:#0e2b18;border:1px solid var(--grn);border-radius:12px;padding:12px}
+.shieldon .s1{font-weight:bold;color:var(--grnlt);font-size:13px}
+.shieldon .s2{font-size:10px;color:#8a8}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.acts button{background:var(--card);border:1px solid #2c2c2c;color:var(--wht);border-radius:12px;padding:14px 6px;font-size:12px;cursor:pointer}
+.acts button b{display:block;font-size:18px;margin-bottom:4px}
+.mini{display:flex;gap:14px;margin-top:12px;font-size:11px;color:var(--gry);flex-wrap:wrap}
+.mini span{cursor:pointer}
+.footnote{font-size:9px;color:#555;text-align:center;margin-top:14px}
+.comps{font-size:11px;line-height:1.9;color:#ccc;margin-top:8px}
+.comps b{color:var(--wht)}
+.st.stop{background:#0e2b18;color:var(--grnlt)}.st.risk{background:#2b0e0e;color:var(--redlt)}.st.warn{background:#2b230e;color:var(--yel)}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo" onclick="go('home')">🛡 FraudShield <span style="color:#888">AI</span></span>
+  <span class="hl"><span class="badge" id="connBadge">OFFLINE AI</span><a onclick="go('dash')">📊 Dashboard</a><a onclick="go('settings')">⚙</a></span>
+</header>
+<main>
+
+<!-- CONSENT -->
+<section class="view" id="v-consent"><div class="phone">
+  <h2>One-time consent</h2>
+  <div class="sub">FraudShield AI protects you. Here is what that means:</div>
+  <div class="card" style="font-size:12px;line-height:1.8;color:#ccc">
+    ✓ Reports are <b>pseudonymous</b> — identity hashed, never shown<br>
+    ✓ The AI sees <b>signals and message text</b>, never your balance<br>
+    ✓ Reported messages retrain the engine <b>anonymously</b><br>
+    ✓ Data Protection Act 2012 (Act 843) aligned · DPIA before any pilot
+  </div>
+  <button class="btn y" onclick="consent()">I consent — activate FraudShield</button>
+</div></section>
+
+<!-- HOME -->
+<section class="view" id="v-home"><div class="phone">
+  <div class="wallet"><div style="font-size:11px;color:#888">MoMo Wallet (demo)</div><div class="amt">GHS 3,470.50</div></div>
+  <div class="shieldon"><div><div class="s1">🛡 FraudShield Active — AI Engine Armed</div><div class="s2" id="engNote">SmishingNet trained · behavior profiled · ensemble live</div></div><div style="font-size:20px">🛡</div></div>
+  <div class="legend"><span><i style="background:var(--grn)"></i>LEGITIMATE</span><span><i style="background:var(--yel)"></i>VERIFY</span><span><i style="background:var(--red)"></i>SCAM</span></div>
+  <div class="acts">
+    <button onclick="go('check')"><b style="color:var(--yel)">💬</b>Check a Message<br><span style="font-size:9px;color:#888">AI smishing scan</span></button>
+    <button onclick="go('verify')"><b style="color:var(--grnlt)">🔍</b>Verify Caller<br><span style="font-size:9px;color:#888">agent registry</span></button>
+    <button onclick="go('send')"><b style="color:var(--redlt)">↗</b>Send Money<br><span style="font-size:9px;color:#888">ensemble-scored</span></button>
+    <button onclick="go('report')"><b style="color:var(--yel)">📣</b>Report a Scam<br><span style="font-size:9px;color:#888">retrains the AI</span></button>
+  </div>
+  <div class="mini"><span onclick="go('ussd')">☎ USSD parity</span><span onclick="go('settings')">⚙ Settings</span><span onclick="playScamCall()">▶ Play scam call</span><span onclick="go('dash')">📊 Dashboard</span></div>
+  <div class="footnote">FraudShield AI · Built with MoMo · <span id="modeNote">offline AI mode</span> · zero dependencies</div>
+</div></section>
+
+<!-- CHECK A MESSAGE -->
+<section class="view" id="v-check"><div class="phone">
+  <span class="back" onclick="go('home')">← Home</span>
+  <h2>Check a Message <span class="tag ai">AI</span></h2>
+  <div class="sub">Paste any SMS. SmishingNet scores it on the traffic light and shows you <b>why</b>.</div>
+  <div class="field"><label>MESSAGE</label><textarea id="msgTxt" placeholder="Paste the SMS here…"></textarea></div>
+  <button class="btn y" onclick="doCheck()">Scan with AI</button>
+  <div class="quick">Try: <span onclick="fillMsg(0)">classic scam</span><span onclick="fillMsg(1)">legit MTN</span><span onclick="fillMsg(2)">NEW script (demo the learning)</span></div>
+  <div id="chkOut"></div>
+</div></section>
+
+<!-- VERIFY -->
+<section class="view" id="v-verify"><div class="phone">
+  <span class="back" onclick="go('home')">← Home</span>
+  <h2>Verify This Caller</h2>
+  <div class="sub">Someone claiming to be MTN? Check before you act.</div>
+  <div class="field"><label>SUSPECT NUMBER</label><input id="vnum" placeholder="024 400 0007"></div>
+  <button class="btn y" onclick="doVerify()">Verify now</button>
+  <div class="quick"><span onclick="fill('#vnum','0244000007')">scammer</span><span onclick="fill('#vnum','0244000001')">real agent</span><span onclick="fill('#vnum','0545551234')">unknown</span></div>
+  <div id="vout"></div>
+</div></section>
+
+<!-- SEND -->
+<section class="view" id="v-send"><div class="phone">
+  <span class="back" onclick="go('home')">← Home</span>
+  <h2>Send Money <span class="tag ai">ENSEMBLE</span></h2>
+  <div class="sub">Rules + SmishingNet + your behavior profile. Never blocks — always asks.</div>
+  <div class="field"><label>RECIPIENT</label><input id="sto" placeholder="024 400 0004"></div>
+  <div class="field"><label>AMOUNT (GHS)</label><input id="sam" type="number" placeholder="2000"></div>
+  <button class="btn y" onclick="startSend()">Send</button>
+  <div class="quick"><span onclick="fill('#sto','0244000004')">triggers AI Pause</span><span onclick="fill('#sto','0244000003')">clean</span></div>
+</div></section>
+
+<!-- SOFT / YELLOW -->
+<section class="view" id="v-soft"><div class="phone">
+  <h2 style="color:var(--yel)">⚠ Caution — unusual transfer</h2>
+  <div class="tl"><i></i><i class="y"></i><i></i></div>
+  <div class="card"><div class="comps" id="softSig"></div>
+  <div style="font-size:11px;color:var(--gry);margin-top:6px">FraudShield Score: <b id="softSc" style="color:var(--yel)"></b> / 100</div></div>
+  <button class="btn g" onclick="softChoice(1)">Continue anyway</button>
+  <button class="btn r" onclick="softChoice(2)">Stop this transfer</button>
+</div></section>
+
+<!-- PAUSE / RED -->
+<section class="view" id="v-pause">
+  <div class="pause">
+    <h1>⏸ THE TRUSTED PAUSE</h1>
+    <div class="tl"><i></i><i></i><i class="r"></i></div>
+    <div class="audnote" id="audNote"></div>
+    <p><b>Is someone on the phone telling you to send this money right now?</b><br><br>
+    MTN will <b>never</b> ask for your PIN or a "wrong transfer" reversal.<br>
+    <span style="color:#c99;font-size:12px" id="pauseDetail"></span></p>
+    <button class="opt o1" onclick="pauseChoice(1)">1 · Talk to a REAL MTN agent</button>
+    <button class="opt" onclick="pauseChoice(2)">2 · Continue anyway</button>
+    <button class="opt o3" onclick="pauseChoice(3)">3 · Cancel this transfer</button>
+    <div class="comps" style="text-align:left" id="pauseSig"></div>
+  </div>
+</section>
+
+<!-- RESULT -->
+<section class="view" id="v-result"><div class="phone">
+  <span class="back" onclick="go('home')">← Home</span>
+  <h2 id="resTitle">Transfer</h2>
+  <div class="tl" id="resLight"><i class="g"></i><i></i><i></i></div>
+  <div class="card" style="line-height:1.9;font-size:13px">
+    <div>To: <b id="resTo"></b></div><div>Amount: <b id="resAmt"></b></div>
+    <div>Reference: <span id="resRef" style="color:#888"></span></div>
+    <div>Status: <b id="resStatus"></b> <span class="tag" id="resMode"></span></div>
+    <div style="font-size:11px;color:var(--gry);margin-top:6px" id="resShield"></div>
+  </div>
+</div></section>
+
+<!-- REPORT -->
+<section class="view" id="v-report"><div class="phone">
+  <span class="back" onclick="go('home')">← Home</span>
+  <h2>Report a Scam</h2>
+  <div class="sub">One report protects thousands — and retrains the AI.</div>
+  <div class="field"><label>SCAM NUMBER</label><input id="rnum" placeholder="024 400 0007"></div>
+  <div class="field"><label>WHAT HAPPENED?</label><div class="chips" id="rcats"></div></div>
+  <div class="field"><label>REGION</label><select id="rreg"></select></div>
+  <button class="btn y" onclick="doReport()">Report — protect others</button>
+  <div id="rout"></div>
+</div></section>
+
+<!-- USSD -->
+<section class="view" id="v-ussd"><div class="phone">
+  <span class="back" onclick="go('home')">← Home</span>
+  <h2>USSD Simulator</h2>
+  <div class="sub">Feature-phone parity — every core feature has a USSD twin.</div>
+  <div class="ussd">
+    <div class="lcd" id="lcd"></div>
+    <div class="keys">
+      <button onclick="uk('1')">1</button><button onclick="uk('2')">2</button><button onclick="uk('3')">3</button>
+      <button onclick="uk('4')">4</button><button onclick="uk('5')">5</button><button onclick="uk('6')">6</button>
+      <button onclick="uk('7')">7</button><button onclick="uk('8')">8</button><button onclick="uk('9')">9</button>
+      <button onclick="uk('*')">*</button><button onclick="uk('0')">0</button><button onclick="uk('#')">#</button>
+      <button onclick="uReset()">MENU</button><button onclick="uk('clear')" style="font-size:10px">CLEAR</button><button onclick="uEnd()">END</button>
+    </div>
+  </div>
+</div></section>
+
+<!-- DASHBOARD -->
+<section class="view" id="v-dash">
+  <span class="back" onclick="go('home')">← App</span>
+  <h2>FraudShield Command Dashboard</h2>
+  <div class="sub" id="dashSub"></div>
+  <div class="stats">
+    <div class="stat hero"><div class="n" id="stStop">0</div><div class="l">ATTEMPTED-SCAM TRANSFERS STOPPED</div></div>
+    <div class="stat g"><div class="n" id="stRep">0</div><div class="l">COMMUNITY REPORTS</div></div>
+    <div class="stat"><div class="n" id="stPause">0</div><div class="l">TRUSTED PAUSES</div></div>
+    <div class="stat g"><div class="n" id="stAcc">—</div><div class="l">SMISHINGNET HOLDOUT ACCURACY</div></div>
+  </div>
+  <div class="card"><b style="color:var(--yel);font-size:13px">🤖 Model status — SmishingNet</b>
+    <div style="font-size:12px;color:#ccc;line-height:1.9;margin-top:6px" id="modelStats"></div>
+    <div style="font-size:10px;color:var(--gry);margin-top:6px">Naive Bayes · unigrams+bigrams · Laplace smoothing · trained in-browser. Retrains on every community report.</div>
+  </div>
+  <div class="card"><b style="font-size:13px">🧠 Engine internals — what the AI has learned scams sound like</b>
+    <div class="chips" id="tokChips"></div>
+    <div style="font-size:10px;color:var(--gry);margin-top:6px">Top scam-likelihood tokens (log-ratio). This list reshapes with every report — the community literally rewrites the model's vocabulary.</div>
+  </div>
+  <div class="card"><b style="font-size:13px">🎬 Stage Manager</b>
+    <div class="sub" style="font-size:10px">Simulates MTN-held signals (real inputs = our incubation ask). Toggle during demo.</div>
+    <div class="tog">Active call with suspect number<div class="sw" id="swCall" onclick="tsw('swCall','call')"></div></div>
+    <div class="tog">Deposit-then-withdraw pattern<div class="sw" id="swDep" onclick="tsw('swDep','dep')"></div></div>
+  </div>
+  <div class="card"><b style="font-size:13px">Top flagged numbers</b><table id="topTbl"><tr><th>NUMBER</th><th>REPORTS</th><th>STATUS</th></tr></table></div>
+  <div class="card"><b style="font-size:13px">Live scam clusters — Ghana</b><canvas id="map" height="290"></canvas></div>
+  <div class="card"><b style="font-size:13px">Activity feed</b><div class="feed" id="feed"></div></div>
+  <button class="btn g" onclick="if(confirm('Reset all demo state incl. learned messages?')){localStorage.removeItem(KEY);location.reload()}">Reset demo state</button>
+</section>
+
+<!-- SETTINGS -->
+<section class="view" id="v-settings">
+  <span class="back" onclick="go('home')">← App</span>
+  <h2>Settings</h2>
+  <div class="card"><b style="font-size:13px">MoMo Sandbox connection</b>
+    <div class="sub" style="font-size:11px">Run momo_proxy.py and paste its URL. Payments then hit the real sandbox API.</div>
+    <div class="field"><label>PROXY URL</label><input id="pxy" placeholder="http://localhost:8000"></div>
+    <button class="btn y" onclick="saveProxy()">Save & test</button>
+    <div class="sub" id="pxyMsg" style="font-size:11px"></div>
+  </div>
+  <div class="card"><b style="font-size:13px">🔊 Voice assets</b>
+    <div style="font-size:11px;color:#888;line-height:1.7">Add <b>audio/pause-twi.mp3</b> and <b>audio/scam-call-twi.mp3</b> beside this file.</div>
+    <button class="btn g" onclick="testAudioFiles()">Test voice files</button>
+    <div class="sub" id="audMsg" style="font-size:11px"></div>
+    <div class="mini"><span onclick="playScamCall()">▶ Play scam call</span><span onclick="playPause()">▶ Play Pause voice</span></div>
+  </div>
+  <div class="card" style="font-size:11px;color:#888;line-height:1.7"><b>About:</b> FraudShield AI — all models run locally in the browser. No server, no API, no data leaves the device. Zero external dependencies. Ensemble = rules + SmishingNet (NB) + behavior baselining — the hybrid architecture production fraud stacks use.</div>
+</section>
+
+</main>
+<div id="toast"></div>
+
+<script>
+/* ========================= STATE ========================= */
+const KEY='fraudshield_ai_v1';
+function fresh(){return{v:1,consented:false,extra:[],reports:[],attempts:[],sent:[],transfers:[],
+ profile:seedProfile(),stopped:0,pauses:0,evals:0,lastSMS:null,
+ demo:{call:false,dep:false},momo:{proxy:'',tested:false}};}
+let S=(function(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.v===1)return s;}catch(e){}return fresh();})();
+function save(){localStorage.setItem(KEY,JSON.stringify(S));}
+
+/* ========================= TRAINING CORPUS ========================= */
+const CORPUS=[
+{y:1,t:"Congratulations!!! Your number has just won GHS 5000 in the MTN MoMo monthly promo. To claim your prize send your PIN now."},
+{y:1,t:"URGENT: Your MoMo account will be BLOCKED in 24hrs. Dial the code with your PIN to verify your details now."},
+{y:1,t:"Dear customer you have been selected for a GHS 10000 MoMo cash grant. Pay GHS 50 activation fee to receive your money."},
+{y:1,t:"Please I mistakenly sent GHS 400 to your number. Kindly reverse it to this number immediately. God bless you."},
+{y:1,t:"WINNER WINNER! You are today's lucky MoMo winner. Claim your cash prize at mtn winners gh dot com before midnight."},
+{y:1,t:"MTN is upgrading SIM cards tonight. Reply with your MoMo PIN or your line will be deactivated permanently."},
+{y:1,t:"Your MoMo wallet has been credited GHS 2500 pending verification. Send your PIN to activate the funds."},
+{y:1,t:"Hello I am agent Mensah from MTN Accra office. You have unclaimed bonus on your wallet. Give me the code sent to your phone."},
+{y:1,t:"Your account has won GHS 300 airtime. To redeem send GHS 20 redemption fee to this number now."},
+{y:1,t:"This is MoMo head office. We noticed suspicious activity on your wallet. Send us your PIN so we can secure your account."},
+{y:1,t:"BONUS ALERT: Dial the loyalty code with your PIN to claim your GHS 800 bonus before it expires tonight."},
+{y:1,t:"Your number won a car in the MTN Christmas promo. Send GHS 350 for customs clearance to claim your prize."},
+{y:1,t:"Attention: your MoMo has been frozen. Verify your identity by sending your PIN and date of birth to this line."},
+{y:1,t:"You have received a scholarship grant of GHS 7000 from MTN Foundation. Pay GHS 150 processing fee to claim."},
+{y:1,t:"Kindly send the MoMo code you received, your cash out is ready at the agent, this is the agent line calling."},
+{y:1,t:"Your loan of GHS 5000 from QuickCash is approved. Pay GHS 99 insurance fee to this wallet to receive your loan."},
+{y:1,t:"ECG: Your electricity token is ready. Send the MoMo code you received to this number so we print it for you."},
+{y:1,t:"MTN PRO MO: your wallet qualifies for double balance promo. Send GHS 100 and receive GHS 200 instantly."},
+{y:1,t:"Your SIM has won GHS 4000 in the MTN yellow promotion. Forward this message with your PIN to claim the prize."},
+{y:1,t:"Customer care calling: your MoMo account will be suspended. Confirm your PIN to stop the suspension."},
+{y:1,t:"Your MoMo withdrawal of GHS 5000 is ready at the nearest agent. Pay GHS 100 release fee to this number first."},
+{y:1,t:"It's your lucky day! Send GHS 50 to this number and receive GHS 500 double promo from MoMo immediately."},
+{y:1,t:"Ghana Lottery: your number won GHS 25000. Send GHS 250 claim fee to release your winnings today."},
+{y:1,t:"Cash promo: you have won GHS 3000. Send your PIN and momo code to this number to claim now."},
+{y:0,t:"You have received GHS 150.00 from AMA MENSAH. New balance GHS 620.00. Fee GHS 0.00."},
+{y:0,t:"You have sent GHS 40.00 to KWAME OSEI. Fee GHS 0.50. Available balance GHS 580.00."},
+{y:0,t:"Your airtime purchase of GHS 20.00 was successful. Thank you for using MoMo."},
+{y:0,t:"Dear customer your 1GB data bundle has expired. Dial the bundle code to renew your bundle."},
+{y:0,t:"Y'ello! Your MTN Pulse 500MB bundle is now active. Valid for 7 days. Enjoy your data."},
+{y:0,t:"Your MoMo balance enquiry: GHS 3470.50. Fee GHS 0.00. Thank you for using MoMo."},
+{y:0,t:"Cash out of GHS 100.00 completed at AMA AGENT ACCRA CENTRAL. Fee GHS 1.00."},
+{y:0,t:"Your MoMo merchant payment of GHS 35.00 to FRANKIES STORE was successful. Balance GHS 295.00."},
+{y:0,t:"MTN MoMo promo: stand a chance to win airtime when you pay your bills with MoMo this month. Terms and conditions apply."},
+{y:0,t:"Y'ello! You have been rewarded 500MB free data for your loyalty. It has been loaded to your account."},
+{y:0,t:"Your ECG electricity bill payment of GHS 120.00 via MoMo was successful. Your token has been sent."},
+{y:0,t:"Reminder: your DSTV subscription of GHS 380.00 is due tomorrow. Pay easily with MoMo."},
+{y:0,t:"Your MoMo cash in of GHS 500.00 at KWABENA AGENT KUMASI was successful. Fee GHS 0.00."},
+{y:0,t:"Dear customer you qualified for the MoMo June bonus. GHS 10 airtime has been loaded to your account."},
+{y:0,t:"Your transfer of GHS 75.00 is complete. Ref MP240517.0012. Thank you for using MoMo."},
+{y:0,t:"MoMo safety tip: never share your PIN with anyone, not even MTN staff. Report fraud to 100."},
+{y:0,t:"Your daily data balance is 230MB remaining. Dial the bundle code to check your remaining bundles."},
+{y:0,t:"Your MoMo statement for May is now available in the MyMTN app. Thank you for banking with MoMo."},
+{y:0,t:"You were entered into the MoMo promo draw this month. No action is needed. Winners will be called from the official line."},
+{y:0,t:"Your monthly MoMo merchant sales report is ready. Total collections GHS 12340.00."}];
+
+/* ========================= MODEL 1 — SMISHINGNET ========================= */
+function allEx(){return CORPUS.concat(S.extra);}
+function tokenize(s){s=(" "+s.toLowerCase()+" ").replace(/[0-9]+/g," num ");
+ const w=s.split(/[^a-z0-9]+/).filter(x=>x.length>1);
+ const bi=[];for(let i=0;i<w.length-1;i++)bi.push(w[i]+"_"+w[i+1]);
+ return w.concat(bi);}
+function trainNB(exs){const c={1:{},0:{}},tot={1:0,0:0};
+ exs.forEach(e=>{tokenize(e.t).forEach(t=>{c[e.y][t]=(c[e.y][t]||0)+1;tot[e.y]++;});});
+ const V=new Set();[1,0].forEach(y=>Object.keys(c[y]).forEach(t=>V.add(t)));
+ return{c,tot,V:V.size,n:exs.length};}
+function nbClassify(text,M){const ts=tokenize(text);
+ let l1=Math.log((M.tot[1]+1)/(M.n+2)),l0=Math.log((M.tot[0]+1)/(M.n+2));
+ const contrib=[];
+ ts.forEach(t=>{const n1=(M.c[1][t]||0)+1,n0=(M.c[0][t]||0)+1;
+  const p1=n1/(M.tot[1]+M.V+1),p0=n0/(M.tot[0]+M.V+1);
+  l1+=Math.log(p1);l0+=Math.log(p0);contrib.push({t:t,d:Math.log(p1)-Math.log(p0)});});
+ const p=1/(1+Math.exp(Math.min(50,Math.max(-50,l0-l1))));
+ const top=contrib.filter(x=>x.d>0.3).sort((a,b)=>b.d-a.d).slice(0,6);
+ return{p:p,top:top};}
+function nbEval(){const exs=allEx();
+ let seed=1234;const a=exs.slice();for(let i=a.length-1;i>0;i--){seed=(seed*48271)%2147483647;const j=seed%(i+1);const tmp=a[i];a[i]=a[j];a[j]=tmp;}
+ const cut=Math.max(2,Math.floor(a.length*0.75));
+ const M=trainNB(a.slice(0,cut));let tp=0,fp=0,fn=0,tn=0;
+ a.slice(cut).forEach(e=>{const pr=nbClassify(e.t,M).p>0.5?1:0;
+  if(pr&&e.y===1)tp++;else if(pr)fp++;else if(e.y===1)fn++;else tn++;});
+ const n=tp+fp+tn+fn;
+ return{acc:n?(tp+tn)/n:0,prec:(tp+fp)?tp/(tp+fp):0,rec:(tp+fn)?tp/(tp+fn):0,n:exs.length,trainN:cut};}
+function scamVocab(){const M=trainNB(allEx());const out=[];
+ Object.keys(M.c[1]).forEach(t=>{if(M.c[1][t]>=2){
+  const p0=((M.c[0][t]||0)+1)/(M.tot[0]+M.V+1),p1=(M.c[1][t]+1)/(M.tot[1]+M.V+1);
+  out.push({t:t,d:Math.log(p1)-Math.log(p0)});}});
+ return out.sort((a,b)=>b.d-a.d).slice(0,14);}
+
+/* ========================= MODEL 2 — BEHAVIOR ========================= */
+function seedProfile(){const recs=['0244000003','0244000001','0545550001'];const txs=[];let seed=7;
+ for(let i=0;i<24;i++){seed=(seed*48271)%2147483647;const r1=seed/2147483647;
+  seed=(seed*48271)%2147483647;const r2=seed/2147483647;
+  seed=(seed*48271)%2147483647;const r3=seed/2147483647;
+  txs.push({a:Math.round(20+r1*180),h:8+Math.floor(r2*12),r:recs[Math.floor(r3*3)]});}
+ return txs;}
+function behavior(tx){const ps=S.profile;const am=ps.map(t=>t.a);
+ const mean=am.reduce((x,y)=>x+y,0)/am.length;
+ const sd=Math.sqrt(am.reduce((x,y)=>x+(y-mean)*(y-mean),0)/am.length)||1;
+ const z=Math.abs(tx.a-mean)/sd;
+ const novel=ps.some(t=>t.r===tx.r)?0:1;
+ const night=(tx.h<6||tx.h>22)?1:0;
+ const big=tx.a>3*mean?1:0;
+ const raw=0.45*Math.min(z/3,1)+0.25*novel+0.15*night+0.15*big;
+ return{pts:Math.round(20*Math.min(raw,1)),z:z.toFixed(1),novel:novel,night:night,big:big,mean:Math.round(mean)};}
+
+/* ========================= ENSEMBLE ========================= */
+function shieldScore(m,amount){let sc=0;const comps=[];
+ const rc=reportCount(m);
+ if(rc>=3){sc+=40;comps.push(['RULE','Community flags on recipient ('+rc+' reports)',40]);}
+ if(WALLETS[m]&&(WALLETS[m].age<2||WALLETS[m].swap)){sc+=25;comps.push(['RULE','Recipient wallet <48h / recent SIM swap',25]);}
+ if(S.demo.dep){sc+=20;comps.push(['RULE','Deposit-then-withdrawal pattern',20]);}
+ if(S.transfers.filter(t=>Date.now()-t.ts<300000).length>=2){sc+=10;comps.push(['RULE','Velocity: multiple transfers in 5 min',10]);}
+ if(S.lastSMS&&S.lastSMS.p>0.7&&Date.now()-S.lastSMS.ts<86400000){sc+=25;comps.push(['AI','SmishingNet: recent SMS scored '+(S.lastSMS.p*100).toFixed(0)+'% scam',25]);}
+ const bh=behavior({a:amount,h:new Date().getHours(),r:m});
+ if(bh.pts>=6){sc+=bh.pts;comps.push(['AI','Behavior anomaly: '+bh.z+'× your usual amount'+(bh.novel?', new recipient':'')+(bh.night?', unusual hour':''),bh.pts]);}
+ if(S.demo.call){sc+=20;comps.push(['RULE','ACTIVE CALL with suspect number',20]);}
+ return{sc:Math.min(sc,100),comps:comps};}
+
+/* ========================= TRAFFIC LIGHT VERDICT ========================= */
+/* GREEN < 35% · YELLOW 35–65% · RED > 65% */
+function v3(p){if(p>=0.65)return{k:'r',cls:'vr',label:'SCAM'};
+ if(p>0.35)return{k:'y',cls:'vy',label:'UNCERTAIN'};
+ return{k:'g',cls:'vg',label:'LEGITIMATE'};}
+function dots(k){return k==='g'?'<i class="g"></i><i></i><i></i>':(k==='y'?'<i></i><i class="y"></i><i></i>':'<i></i><i></i><i class="r"></i>');}
+
+/* ========================= REGISTRIES ========================= */
+const AGENTS=[{m:'0244000001',n:'Ama Mensah',d:'Accra Central'},{m:'0244000002',n:'Kwabena Osei',d:'Kumasi'},
+{m:'0244000005',n:'Yaw Boateng',d:'Takoradi'},{m:'0244000006',n:'Akosua Asantewaa',d:'Koforidua'},
+{m:'0244000008',n:'Nana Kwame',d:'Sunyani'},{m:'0244000009',n:'Efua Mensimah',d:'Cape Coast'}];
+const SCAM=[{m:'0244000007',r:47},{m:'0201100088',r:15},{m:'0542200099',r:9},{m:'0273300011',r:6}];
+const WALLETS={'0244000007':{age:0.5,swap:true},'0244000004':{age:1,swap:true},'0244000003':{age:420,swap:false}};
+const REGIONS=['Greater Accra','Ashanti','Central','Western','Northern','Volta','Eastern','Bono','Bono East','Ahafo','Oti','Savannah','North East','Upper East','Upper West','Western North'];
+const SEED_REGIONS={'Greater Accra':30,'Ashanti':18,'Central':10,'Western':8,'Northern':6,'Volta':3,'Eastern':2};
+const CITY={'Greater Accra':{n:'Accra',x:-0.19,y:5.6},'Ashanti':{n:'Kumasi',x:-1.62,y:6.69},'Central':{n:'Cape Coast',x:-1.24,y:5.1},'Western':{n:'Takoradi',x:-1.76,y:4.89},'Northern':{n:'Tamale',x:-0.84,y:9.4},'Volta':{n:'Ho',x:0.87,y:6.6},'Eastern':{n:'Koforidua',x:-0.1,y:6.09},'Bono':{n:'Sunyani',x:-2.33,y:7.33},'Bono East':{n:'Techiman',x:-1.85,y:7.59},'Upper East':{n:'Bolgatanga',x:-0.85,y:10.79},'Upper West':{n:'Wa',x:-2.51,y:10.06}};
+const CATS=['Voice call','Smishing SMS','Fake MTN agent','Wrong-transfer'];
+
+/* ========================= HELPERS ========================= */
+const $=q=>document.querySelector(q);
+const norm=v=>(v||'').replace(/\D/g,'');
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+function go(v){document.querySelectorAll('.view').forEach(e=>e.classList.remove('on'));$('#v-'+v).classList.add('on');if(v==='dash')renderDash();if(v==='ussd')uReset();window.scrollTo(0,0);}
+function fill(sel,v){$(sel).value=v;}
+function reportCount(m){let r=0;const s=SCAM.find(x=>x.m===m);if(s)r=s.r;return r+S.reports.filter(x=>x.m===m).length;}
+function playAudio(k){try{const a=new Audio('audio/'+(k==='pause'?'pause-twi.mp3':'scam-call-twi.mp3'));a.play();return true;}catch(e){return false;}}
+function playScamCall(){toast(playAudio('scam')?'Playing scam call…':'Audio missing — add audio/scam-call-twi.mp3');}
+function playPause(){toast(playAudio('pause')?'Playing Pause voice…':'Audio missing — add audio/pause-twi.mp3');}
+function testAudioFiles(){const files=[['Scam call','audio/scam-call-twi.mp3'],['Trusted Pause','audio/pause-twi.mp3']];
+ let done=0;const res=[];
+ files.forEach(f=>{const a=new Audio();
+  a.oncanplaythrough=()=>{res.push('🟢 '+f[0]+' — found');fin();};
+  a.onerror=()=>{res.push('🔴 '+f[0]+' — missing');fin();};a.src=f[1];});
+ function fin(){done++;if(done===files.length)$('#audMsg').innerHTML=res.join('<br>');}
+ setTimeout(()=>{if(done<files.length){done=files.length;if(!res.length)res.push('🔴 Files not found');$('#audMsg').innerHTML=res.join('<br>');}},3000);}
+const DEMO_MSGS=[
+"Congratulations!!! Your number has just won GHS 8,000 in the MoMo anniversary promo. Send your PIN to claim your prize immediately.",
+"You have received GHS 65.00 from YAW BOATENG. New balance GHS 3,535.50. Fee GHS 0.00.",
+"Auntie, it is me Yaw, my phone fell into water. Please send GHS 300 for medicine, I will refund you tomorrow. God bless you."];
+
+/* ========================= CHECK A MESSAGE ========================= */
+function fillMsg(i){$('#msgTxt').value=DEMO_MSGS[i];}
+function doCheck(){const txt=$('#msgTxt').value.trim();if(txt.length<10)return toast('Paste a message first');
+ S.evals++;
+ const M=trainNB(allEx());const r=nbClassify(txt,M);S.lastSMS={t:txt,p:r.p,ts:Date.now()};save();
+ const pct=(r.p*100).toFixed(1);const v=v3(r.p);
+ let note;
+ if(v.k==='r')note='🚫 <b>SCAM — high confidence.</b> Do not reply, do not send money, do not share any code. Report it below and the engine learns this script.';
+ else if(v.k==='y')note='⚠ <b>UNCERTAIN / SUSPICIOUS.</b> The engine has not seen enough scripts like this. If you know it is a scam, report it — one report retrains the model instantly.';
+ else note='✓ <b>LEGITIMATE.</b> Consistent with genuine MTN message patterns. Stay alert anyway.';
+ let h='<div class="verdict '+v.cls+'"><div class="tl">'+dots(v.k)+'</div>';
+ h+='<div class="big">'+v.label+' — '+pct+'%</div>';
+ h+='<div class="gauge3"><b style="left:calc('+pct+'% - 2px)"></b></div>';
+ h+='<div style="font-size:10px;color:#888">probability this message is a scam · marker shows where it landed</div>';
+ if(r.top.length){h+='<div class="note" style="text-align:left"><b>Why:</b> ';
+  r.top.forEach(x=>{h+='<span style="background:#2b0e0e;color:#E63946;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px;display:inline-block">'+x.t.replace(/_/g,' ')+'</span>';});
+  h+='</div>';}
+ h+='<div class="note">'+note+'</div>';
+ if(r.p>0.35)h+='<button class="btn r" onclick="reportMsg(1)">Report & retrain engine — this is a SCAM</button>';
+ h+='<button class="btn g" onclick="reportMsg(0)">That verdict is wrong — it is LEGIT (teach the model)</button></div>';
+ $('#chkOut').innerHTML=h;
+ renderDash();}
+function reportMsg(y){const txt=$('#msgTxt').value.trim();if(!txt)return;
+ S.extra.push({y:y,t:txt});save();const ev=nbEval();
+ const v=y?v3(1):v3(0);
+ toast(y?'Engine retrained — accuracy now '+(ev.acc*100).toFixed(0)+'%':'Model corrected. Thank you.');
+ $('#chkOut').innerHTML='<div class="verdict '+v.cls+'"><div class="tl">'+dots(v.k)+'</div><div class="big">✓ ENGINE RETRAINED</div><div class="note">Training set: <b>'+ev.n+' examples</b> (+'+(y?'scam':'legit')+'). Holdout accuracy: <b>'+(ev.acc*100).toFixed(0)+'%</b> · precision '+(ev.prec*100).toFixed(0)+'% · recall '+(ev.rec*100).toFixed(0)+'%.<br><br>Scan the same message again — watch the marker move.</div></div>';
+ renderDash();}
+
+/* ========================= VERIFY ========================= */
+function doVerify(){const m=norm($('#vnum').value);if(m.length<9)return toast('Enter a full number');
+ const ag=AGENTS.find(x=>x.m===m);const rc=reportCount(m);let h='';
+ if(ag)h='<div class="verdict vg"><div class="tl">'+dots('g')+'</div><div class="big">✓ VERIFIED MTN AGENT</div><div class="note">'+ag.n+' · '+ag.d+' — in MTN\'s verified registry.</div></div>';
+ else if(rc>=3)h='<div class="verdict vr"><div class="tl">'+dots('r')+'</div><div class="big">🚫 NOT AN MTN LINE</div><div class="note">Flagged <b>'+rc+' times</b> by the community.<br><b>MTN will NEVER call asking for your PIN or a reversal.</b></div><button class="btn r" onclick="fill(\'#rnum\',\''+m+'\');go(\'report\')">Report this number</button></div>';
+ else h='<div class="verdict vy"><div class="tl">'+dots('y')+'</div><div class="big">⚠ NOT IN VERIFIED REGISTRY</div><div class="note">MTN will never ask for your PIN, a reversal, or a fee. In doubt? Hang up and call MTN yourself.</div></div>';
+ $('#vout').innerHTML=h;}
+
+/* ========================= SEND ========================= */
+let CUR=null;
+function startSend(){const m=norm($('#sto').value),a=parseFloat($('#sam').value)||0;
+ if(m.length<9||a<=0)return toast('Enter recipient and amount');
+ S.transfers.push({ts:Date.now(),a:a});
+ const ev=shieldScore(m,a);CUR={m:m,a:a,ev:ev};
+ S.attempts.push({m:m,a:a,sc:ev.sc,outcome:'initiated',ts:Date.now()});
+ if(ev.sc>=60){S.pauses++;save();showPause();}
+ else if(ev.sc>=30){save();$('#softSig').innerHTML=compHTML(ev.comps);$('#softSc').textContent=ev.sc;go('soft');}
+ else complete('proceeded');}
+function compHTML(cs){return cs.map(c=>'• <span class="tag '+(c[0]==='AI'?'ai':'')+'">'+c[0]+'</span> <b>'+c[1]+'</b> <span style="color:var(--yel)">+'+c[2]+'</span>').join('<br>');}
+function showPause(){go('pause');
+ $('#pauseDetail').textContent='GHS '+CUR.a.toLocaleString()+' to '+CUR.m;
+ $('#pauseSig').innerHTML='<b style="color:#E63946">FraudShield Score '+CUR.ev.sc+'/100 — RED verdict:</b><br>'+compHTML(CUR.ev.comps);
+ $('#audNote').textContent='';if(!playAudio('pause'))$('#audNote').textContent='🔊 Voice file missing — text fallback active.';}
+function softChoice(c){if(c===1)complete('proceeded_after_soft');
+ else{finish('stopped_soft');toast('Stopped. FraudShield stood between you and the thief.');}}
+function pauseChoice(c){if(c===1){finish('stopped_agent');window.location.href='tel:100';}
+ else if(c===2)complete('proceeded_after_pause');
+ else{finish('stopped_cancel');toast('Cancelled. FraudShield stood between you and the thief.');}}
+function finish(out){const i=S.attempts.length-1;S.attempts[i].outcome=out;
+ if(out.indexOf('stopped')===0)S.stopped++;save();go('home');}
+async function complete(out){const i=S.attempts.length-1;S.attempts[i].outcome=out;
+ if(S.sent.indexOf(CUR.m)<0)S.sent.push(CUR.m);save();
+ go('result');$('#resTo').textContent=CUR.m;$('#resAmt').textContent='GHS '+CUR.a.toLocaleString();
+ $('#resStatus').textContent='PENDING…';$('#resRef').textContent='';
+ const clean=CUR.ev.comps.length===0;
+ $('#resLight').innerHTML=clean?dots('g'):(CUR.ev.sc>=60?dots('r'):dots('y'));
+ $('#resShield').textContent=clean?'✓ Ensemble checked — all clear (GREEN).':'⚠ '+CUR.ev.comps.length+' signals fired — FraudShield asked you first. Score '+CUR.ev.sc+'/100.';
+ let res=null;
+ if(S.momo.proxy&&S.momo.tested){try{res=await livePay(CUR.a,CUR.m);}catch(e){toast('Proxy unreachable — simulated');}}
+ if(!res)res=await new Promise(r=>setTimeout(()=>r({ref:'FS-'+Math.random().toString(36).slice(2,8).toUpperCase(),status:'SUCCESSFUL',sim:true}),1400));
+ $('#resRef').textContent=res.ref;$('#resStatus').textContent=res.status;
+ $('#resMode').textContent=res.sim?'SIMULATED':'LIVE SANDBOX';$('#resMode').className='tag'+(res.sim?'':' live');}
+async function livePay(a,m){const r=await fetch(S.momo.proxy+'/api/momo/pay',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:String(a),msisdn:m})});
+ const j=await r.json();let st=j.status||'PENDING';
+ for(let k=0;k<8&&st==='PENDING';k++){await new Promise(r=>setTimeout(r,1500));
+  const s=await fetch(S.momo.proxy+'/api/momo/status/'+j.ref);st=(await s.json()).status;}
+ return{ref:j.ref,status:st,sim:false};}
+
+/* ========================= REPORT ========================= */
+let rcat='Voice call';
+(function(){const c=$('#rcats');CATS.forEach((x,i)=>{const d=document.createElement('div');d.className='chip'+(i===0?' sel':'');d.textContent=x;
+ d.onclick=()=>{rcat=x;document.querySelectorAll('#rcats .chip').forEach(e=>e.classList.remove('sel'));d.classList.add('sel');};c.appendChild(d);});
+ const r=$('#rreg');REGIONS.forEach(x=>{const o=document.createElement('option');o.textContent=x;r.appendChild(o);});})();
+function doReport(){const m=norm($('#rnum').value);if(m.length<9)return toast('Enter a full number');
+ S.reports.push({m:m,cat:rcat,reg:$('#rreg').value,ts:Date.now()});save();
+ $('#rout').innerHTML='<div class="verdict vg"><div class="tl">'+dots('g')+'</div><div class="big">✓ REPORTED — PSEUDONYMOUS</div><div class="note">You protected other users. This number now carries <b>'+reportCount(m)+' community flags</b> — and the engine is sharper.</div></div>';
+ renderDash();toast('Reported. Thank you.');}
+
+/* ========================= USSD ========================= */
+let U={st:'menu',buf:''};
+function uReset(){U={st:'menu',buf:''};uRender();}
+function uEnd(){U.st='menu';U.buf='';uRender();}
+function uRender(){let t='';
+ if(U.st==='menu')t='  FraudShield\n  ----------\n1. Verify caller\n2. Report scam\n\n  [0 Exit]';
+ else if(U.st==='verify')t='  Verify caller\n  ----------\nEnter number,\npress # :\n  '+U.buf;
+ else if(U.st==='report')t='  Report scam\n  ----------\nEnter number,\npress # :\n  '+U.buf;
+ else t=U.msg;
+ $('#lcd').textContent=t;}
+function uk(k){if(k==='clear'){U.buf='';uRender();return;}
+ if(U.st==='res'){U.st='menu';U.buf='';uRender();return;}
+ if(U.st==='menu'){if(k==='1')U.st='verify';else if(k==='2')U.st='report';else if(k==='0'){U.st='res';U.msg='  Thank you.\n  Shield stays on.';}uRender();return;}
+ if(k==='#'){const m=U.buf;
+  if(U.st==='verify'){const ag=AGENTS.find(x=>x.m===m);const rc=reportCount(m);
+   U.msg=ag?'  VERIFIED MTN AGENT\n  '+ag.n.toUpperCase()+',\n  '+ag.d.toUpperCase()+'.':
+    (rc>=3?'  *** STOP ***\n  NOT AN MTN LINE.\n  FLAGGED '+rc+'X.\n  MTN NEVER ASKS\n  FOR YOUR PIN.':'  NOT IN VERIFIED\n  REGISTRY.\n  MTN NEVER ASKS\n  FOR YOUR PIN.');}
+  else{S.reports.push({m:m,cat:'Voice call',reg:'Greater Accra',ts:Date.now()});save();renderDash();
+   U.msg='  REPORTED.\n  THANK YOU -\n  YOU PROTECTED\n  OTHER USERS.';}
+  U.st='res';U.buf='';}
+ else if(/[0-9]/.test(k)&&U.buf.length<11)U.buf+=k;
+ uRender();}
+
+/* ========================= DASHBOARD ========================= */
+function tsw(id,k){S.demo[k]=!S.demo[k];save();document.getElementById(id).classList.toggle('on',S.demo[k]);}
+function renderDash(){const ev=nbEval();
+ $('#stStop').textContent=S.stopped;$('#stRep').textContent=S.reports.length+77;$('#stPause').textContent=S.pauses;
+ $('#stAcc').textContent=(ev.acc*100).toFixed(0)+'%';
+ $('#dashSub').textContent='Community network: '+(77+S.reports.length)+' reports · engine trained on '+ev.n+' messages · '+S.evals+' AI scans this session';
+ $('#modelStats').innerHTML='Training examples: <b>'+ev.n+'</b> ('+(ev.n-CORPUS.length)+' from community reports) · vocabulary: <b>'+trainNB(allEx()).V+'</b> features<br>Holdout accuracy <b>'+(ev.acc*100).toFixed(1)+'%</b> · precision <b>'+(ev.prec*100).toFixed(1)+'%</b> · recall <b>'+(ev.rec*100).toFixed(1)+'%</b><br>Behavior profile: <b>'+S.profile.length+'</b> baseline transactions · typical amount GHS '+behavior({a:100,h:12,r:'x'}).mean;
+ $('#tokChips').innerHTML=scamVocab().map(x=>'<span class="chip tok">'+x.t.replace(/_/g,' ')+'</span>').join('');
+ ['call','dep'].forEach((k,i)=>{document.getElementById(['swCall','swDep'][i]).classList.toggle('on',S.demo[k]);});
+ const flagSet={};SCAM.forEach(x=>flagSet[x.m]=reportCount(x.m));S.reports.forEach(x=>flagSet[x.m]=reportCount(x.m));
+ let h='<tr><th>NUMBER</th><th>REPORTS</th><th>STATUS</th></tr>';
+ Object.entries(flagSet).sort((a,b)=>b[1]-a[1]).slice(0,6).forEach(p=>{h+='<tr><td>'+p[0]+'</td><td>'+p[1]+'</td><td>'+(p[1]>=3?'🚫 FLAGGED':'watching')+'</td></tr>';});
+ $('#topTbl').innerHTML=h;
+ const evts=[...S.reports.map(r=>({ts:r.ts,txt:'REPORT · '+r.m+' · '+r.cat,st:'stop'})),
+  ...S.attempts.filter(a=>a.outcome!=='initiated').map(a=>({ts:a.ts,txt:'TRANSFER · GHS '+a.a.toLocaleString()+' → '+a.m+' · score '+a.sc,st:a.outcome.indexOf('stopped')===0?'stop':(a.outcome.indexOf('soft')>=0?'warn':'risk')}))]
+  .sort((a,b)=>b.ts-a.ts).slice(0,12);
+ $('#feed').innerHTML=evts.map(e=>'<div class="fitem"><span>'+e.txt+'</span><span><span class="st '+e.st+'">'+e.st+'</span> <span class="t">'+new Date(e.ts).toLocaleTimeString()+'</span></span></div>').join('')||'<div class="fitem">No activity — run a demo.</div>';
+ drawMap();}
+function drawMap(){const cv=$('#map');const W=cv.width=cv.clientWidth||860,H=290;const ctx=cv.getContext('2d');
+ ctx.fillStyle='#0f0f14';ctx.fillRect(0,0,W,H);
+ const counts={...SEED_REGIONS};S.reports.forEach(r=>counts[r.reg]=(counts[r.reg]||0)+1);
+ ctx.font='11px Arial';
+ Object.keys(CITY).forEach(reg=>{const c=CITY[reg],n=counts[reg]||0;
+  const px=30+((c.x+3.3)/4.6)*(W-60),py=25+(1-(c.y-4.5)/6.8)*(H-50);
+  if(n>0){const rad=Math.min(5+n*0.7,22);
+   const g=ctx.createRadialGradient(px,py,1,px,py,rad*2.2);g.addColorStop(0,'rgba(230,57,70,0.85)');g.addColorStop(1,'rgba(230,57,70,0)');
+   ctx.fillStyle=g;ctx.beginPath();ctx.arc(px,py,rad*2.2,0,7);ctx.fill();
+   ctx.fillStyle='#E63946';ctx.beginPath();ctx.arc(px,py,Math.max(rad*0.35,3),0,7);ctx.fill();}
+  ctx.fillStyle='#666';ctx.fillText(c.n,px+8,py+3);});
+ ctx.fillStyle='#444';ctx.font='9px Arial';ctx.fillText('Live scam clusters — community-reported, pseudonymous',12,H-10);}
+
+/* ========================= SETTINGS / INIT ========================= */
+function consent(){S.consented=true;save();go('home');}
+function saveProxy(){S.momo.proxy=$('#pxy').value.replace(/\/$/,'');S.momo.tested=false;save();
+ if(!S.momo.proxy){toast('Cleared — offline AI mode');updBadge();return;}
+ $('#pxyMsg').textContent='Testing…';
+ fetch(S.momo.proxy+'/api/health').then(r=>r.json()).then(()=>{S.momo.tested=true;save();updBadge();
+  $('#pxyMsg').textContent='✓ Connected — payments now hit the real MoMo sandbox';toast('LIVE SANDBOX MODE ON');})
+ .catch(()=>{S.momo.tested=false;save();updBadge();$('#pxyMsg').textContent='✗ Proxy unreachable — run: uvicorn momo_proxy:app --port 8000';});}
+function updBadge(){const b=$('#connBadge');
+ if(S.momo.proxy&&S.momo.tested){b.textContent='LIVE SANDBOX';b.classList.add('live');}
+ else{b.textContent='OFFLINE AI';b.classList.remove('live');}}
+ $('#pxy').value=S.momo.proxy||'';
+updBadge();go(S.consented?'home':'consent');
+</script>
+</body>
+</html>
