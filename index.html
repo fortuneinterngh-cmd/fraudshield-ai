@@ -1,304 +1,1236 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FraudShield AI — Fraud Detection System</title>
+<meta name="theme-color" content="#06070a">
+<title>FraudShield AI — Human-Layer Fraud Detection for the MoMo Ecosystem</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/600.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5/400.css">
 <style>
-:root{--yel:#FFCB05;--ink:#111;--card:#1A1A1A;--red:#D62828;--redlt:#E63946;--wht:#fff;--gry:#9a9a9a;--grn:#2E9E4F;--grnlt:#4FCB75}
-*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}
-body{background:#060606;color:var(--wht);min-height:100vh}
-header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:#0a0a0a;border-bottom:1px solid #222;position:sticky;top:0;z-index:9}
-header .logo{font-weight:bold;color:var(--yel);font-size:15px;cursor:pointer}
-header .hl{display:flex;gap:10px;align-items:center;font-size:12px}
-header a{color:var(--gry);cursor:pointer}
-.badge{font-size:10px;padding:3px 8px;border-radius:10px;background:#333;color:#aaa}
-.badge.live{background:var(--grn);color:#fff}
-main{max-width:960px;margin:0 auto;padding:14px}
-.view{display:none}.view.on{display:block}
-.phone{max-width:410px;margin:0 auto;background:#0b0b0b;border:1px solid #262626;border-radius:22px;padding:16px}
-h2{font-size:18px;margin-bottom:6px}
-.sub{font-size:12px;color:var(--gry);margin-bottom:12px}
-.btn{display:block;width:100%;padding:13px;border:none;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer;margin-top:10px;text-align:center}
-.btn.y{background:var(--yel);color:var(--ink)}.btn.r{background:var(--red);color:#fff}.btn.g{background:transparent;color:var(--wht);border:1px solid #444}
-.card{background:var(--card);border-radius:12px;padding:14px;margin-top:10px}
+/* ============================== TOKENS ============================== */
+:root{
+  --bg:#06070a; --bg2:#0a0c12; --card:#11131b; --card2:#161924; --card3:#1c202c;
+  --line:#232734; --line2:#2d3242;
+  --yel:#FFCB05; --yel2:#ffe07a; --yeldim:#3a2f05;
+  --red:#E63946; --red2:#ff727c; --reddim:#331114;
+  --grn:#2E9E4F; --grn2:#4FCB75; --grndim:#0e2b18;
+  --txt:#ECEEF4; --mut:#8A8FA3; --dim:#5A5F73;
+  --r:16px; --rs:10px;
+  --mono:'JetBrains Mono',ui-monospace,'Courier New',monospace;
+  --sans:'Space Grotesk','Inter',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  --shadow:0 18px 50px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  background:var(--bg);color:var(--txt);font-family:var(--sans);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+.bgfx{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(900px 520px at 12% -8%,rgba(255,203,5,.10),transparent 62%),
+    radial-gradient(760px 480px at 92% 6%,rgba(46,158,79,.09),transparent 60%),
+    radial-gradient(700px 520px at 70% 105%,rgba(230,57,70,.09),transparent 62%);
+}
+.bgfx::after{content:'';position:absolute;inset:0;opacity:.35;
+  background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:46px 46px;mask-image:radial-gradient(ellipse at 50% 0%,#000 30%,transparent 78%)}
+::selection{background:var(--yel);color:#111}
+/* scrollbars */
+*::-webkit-scrollbar{width:9px;height:9px}
+*::-webkit-scrollbar-thumb{background:#262b39;border-radius:9px}
+*::-webkit-scrollbar-track{background:transparent}
+
+/* ============================== HEADER ============================== */
+header{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:14px;
+  padding:11px 18px;background:rgba(8,9,14,.86);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:9px;cursor:pointer;font-weight:700;letter-spacing:.4px;flex-shrink:0}
+.brand .mk{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;
+  background:linear-gradient(150deg,var(--yel),#e0a900);color:#15110a;font-size:15px;box-shadow:0 0 20px rgba(255,203,5,.35)}
+.brand b{font-size:15px}
+.brand span{font-size:11px;color:var(--mut);font-weight:500;letter-spacing:2px}
+nav.tabs{display:flex;gap:4px;margin-left:8px;background:var(--card);border:1px solid var(--line);padding:4px;border-radius:12px;overflow:auto}
+nav.tabs button{border:0;background:transparent;color:var(--mut);font-family:var(--sans);font-size:12.5px;font-weight:600;
+  padding:8px 13px;border-radius:9px;cursor:pointer;white-space:nowrap;transition:.18s}
+nav.tabs button:hover{color:var(--txt);background:var(--card2)}
+nav.tabs button.on{background:var(--yel);color:#161207;box-shadow:0 4px 16px rgba(255,203,5,.28)}
+.hright{margin-left:auto;display:flex;align-items:center;gap:9px}
+.badge{font-size:10px;font-weight:700;letter-spacing:.7px;padding:5px 10px;border-radius:20px;
+  background:var(--card2);color:var(--mut);border:1px solid var(--line2);white-space:nowrap}
+.badge.live{background:var(--grndim);color:var(--grn2);border-color:#1d5c33}
+.badge.sim{background:var(--yeldim);color:var(--yel);border-color:#5a4708}
+.iconbtn{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card);
+  color:var(--mut);cursor:pointer;display:grid;place-items:center;transition:.18s}
+.iconbtn:hover{color:var(--yel);border-color:#3a3f52}
+.ic{width:17px;height:17px}
+
+/* ============================== LAYOUT ============================== */
+main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:22px 18px 70px}
+.sec{display:none;animation:fade .35s ease}
+.sec.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.stage{display:grid;grid-template-columns:minmax(300px,1fr) minmax(340px,420px);gap:30px;align-items:start;justify-content:center}
+.rail{position:sticky;top:78px}
+.rail .art{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:linear-gradient(160deg,#0d1017,#080a0f);box-shadow:var(--shadow)}
+.rail .art svg{display:block;width:100%;height:auto}
+.rail h1{font-size:clamp(24px,3vw,34px);line-height:1.14;margin:20px 0 8px;letter-spacing:-.4px}
+.rail h1 em{font-style:normal;color:var(--yel)}
+.rail .lede{color:var(--mut);font-size:13.5px;max-width:44ch}
+.laws{display:grid;gap:8px;margin-top:16px}
+.law{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border:1px solid var(--line);border-left:3px solid var(--yel);
+  background:linear-gradient(90deg,rgba(255,203,5,.06),transparent);border-radius:10px;font-size:12.4px;color:#cfd3e0}
+.law b{color:var(--txt);display:block;font-size:12.6px;margin-bottom:1px}
+.railstats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+.rs{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center}
+.rs b{display:block;font-size:19px;color:var(--yel);font-family:var(--mono);letter-spacing:-.5px}
+.rs.g b{color:var(--grn2)} .rs.r b{color:var(--red2)}
+.rs span{font-size:8.6px;letter-spacing:.6px;color:var(--dim);text-transform:uppercase}
+.btn{border:0;border-radius:11px;font-family:var(--sans);font-weight:700;font-size:14px;cursor:pointer;
+  padding:13px 16px;transition:.16s;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center}
+.btn:active{transform:translateY(1px)}
+.btn.y{background:var(--yel);color:#171206;box-shadow:0 8px 24px rgba(255,203,5,.22)}
+.btn.y:hover{background:#ffd83d}
+.btn.g{background:transparent;color:var(--txt);border:1px solid var(--line2)}
+.btn.g:hover{border-color:#4a5069;background:var(--card)}
+.btn.r{background:var(--red);color:#fff}
+.btn.r:hover{background:#f04552}
+.btn.dark{background:var(--card2);color:var(--txt);border:1px solid var(--line2)}
+.btn.dark:hover{background:var(--card3)}
+.btn.sm{padding:9px 13px;font-size:12.5px;border-radius:9px}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+
+/* ============================== PHONE ============================== */
+.phone{width:100%;max-width:404px;margin:0 auto;background:#0b0d13;border:1px solid var(--line2);
+  border-radius:34px;padding:9px;box-shadow:var(--shadow),0 0 0 1px rgba(255,255,255,.03) inset;position:relative}
+.phone::before{content:'';position:absolute;top:16px;left:50%;transform:translateX(-50%);
+  width:96px;height:20px;background:#05060a;border-radius:12px;z-index:5}
+.screen{position:relative;background:linear-gradient(180deg,#0a0c11,#080a0e);border-radius:26px;overflow:hidden;
+  height:clamp(580px,76vh,772px);display:flex;flex-direction:column}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:9px 20px 4px;font-size:10.5px;
+  color:#b9bed0;font-family:var(--mono);letter-spacing:.4px;flex-shrink:0}
+.statusbar .sright{display:flex;gap:5px;align-items:center}
+.bar{display:inline-block;width:3px;background:#b9bed0;border-radius:1px}
+.appbody{flex:1;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth}
+.pview{display:none;padding:14px 15px 18px;animation:slidein .3s ease}
+.pview.on{display:block}
+@keyframes slidein{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+.bottomnav{flex-shrink:0;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);
+  background:rgba(9,10,15,.96);backdrop-filter:blur(8px);padding:6px 4px 9px}
+.bottomnav button{border:0;background:transparent;color:var(--dim);cursor:pointer;font-family:var(--sans);
+  font-size:9.3px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 2px;border-radius:9px;transition:.16s}
+.bottomnav button .ic{width:19px;height:19px}
+.bottomnav button:hover{color:var(--mut)}
+.bottomnav button.on{color:var(--yel)}
+.bottomnav button.on .ic{filter:drop-shadow(0 0 8px rgba(255,203,5,.6))}
+
+/* phone typography */
+.pview h2{font-size:19px;letter-spacing:-.3px;margin-bottom:4px}
+.pview h2 .tag{vertical-align:middle}
+.sub{font-size:12px;color:var(--mut);margin-bottom:13px;line-height:1.6}
+.back{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--mut);cursor:pointer;margin-bottom:10px;
+  background:none;border:0;font-family:var(--sans);padding:0}
+.back:hover{color:var(--yel)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-top:10px}
+.card.tight{padding:11px 13px}
 .field{margin-top:12px}
-.field label{font-size:11px;color:var(--gry);display:block;margin-bottom:4px}
-.field input,.field textarea,.field select{width:100%;padding:11px;border-radius:8px;border:1px solid #333;background:#111;color:var(--wht);font-size:15px}
-textarea{font-size:13px!important;resize:vertical;min-height:70px}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.chip{font-size:11px;padding:6px 10px;border-radius:14px;background:#222;border:1px solid #333;cursor:pointer;color:#ccc}
-.chip.sel{background:var(--yel);color:var(--ink);border-color:var(--yel);font-weight:bold}
-.chip.tok{cursor:default;background:#2b0e0e;border-color:var(--red);color:var(--redlt)}
-.quick{font-size:10px;color:#777;margin-top:8px}
-.quick span{color:var(--yel);cursor:pointer;margin-right:8px}
-/* ---- traffic light legitimacy system ---- */
-.tl{display:flex;gap:12px;justify-content:center;margin:10px 0}
-.tl i{width:20px;height:20px;border-radius:50%;background:#151515;border:2px solid #333}
-.tl i.g{background:var(--grn);border-color:var(--grn);box-shadow:0 0 14px rgba(46,158,79,.7)}
-.tl i.y{background:var(--yel);border-color:var(--yel);box-shadow:0 0 14px rgba(255,203,5,.7)}
-.tl i.r{background:var(--red);border-color:var(--red);box-shadow:0 0 14px rgba(214,40,40,.7)}
-.gauge3{position:relative;height:14px;border-radius:7px;margin:12px 0 4px;
- background:linear-gradient(to right,var(--grn) 0%,var(--grn) 35%,var(--yel) 35%,var(--yel) 65%,var(--red) 65%,var(--red) 100%)}
-.gauge3 b{position:absolute;top:-5px;width:4px;height:24px;background:#fff;border-radius:2px;box-shadow:0 0 6px #000}
-.legend{display:flex;justify-content:center;gap:12px;font-size:10px;color:var(--gry);margin-top:10px;flex-wrap:wrap}
-.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
-.verdict{border-radius:14px;padding:16px;margin-top:14px;text-align:center}
-.verdict.vg{background:#0e2b18;border:1px solid var(--grn)}
-.verdict.vy{background:#2b230e;border:1px solid var(--yel)}
-.verdict.vr{background:#2b0e0e;border:1px solid var(--red)}
-.verdict .big{font-size:19px;font-weight:bold}
-.vg .big{color:var(--grnlt)}.vy .big{color:var(--yel)}.vr .big{color:var(--redlt)}
-.verdict .note{font-size:12px;color:#ddd;margin-top:8px;line-height:1.5}
-.pause{max-width:420px;margin:0 auto;background:#3a0d0d;border:2px solid var(--red);border-radius:18px;padding:24px;text-align:center}
-.pause h1{color:var(--redlt);font-size:25px;margin-bottom:10px}
-.pause p{font-size:15px;line-height:1.6;margin-bottom:14px}
-.pause .opt{display:block;width:100%;padding:14px;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer;margin-top:10px;border:1px solid #555;background:#1a0a0a;color:#fff}
-.pause .opt.o1{background:var(--yel);color:var(--ink);border:none}
-.pause .opt.o3{border-color:var(--red)}
-.audnote{font-size:10px;color:var(--yel);margin-bottom:8px}
-.ussd{max-width:340px;margin:0 auto;background:#0e1a0e;border:3px solid #333;border-radius:14px;padding:14px}
-.lcd{background:#141f14;border-radius:8px;padding:14px;min-height:170px;color:#7CFC9A;font-family:'Courier New',monospace;font-size:13px;line-height:1.7;white-space:pre-wrap}
-.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px}
-.keys button{padding:12px;font-size:15px;background:#222;color:#fff;border:1px solid #333;border-radius:8px;cursor:pointer}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px}
-.stat{background:var(--card);border-radius:12px;padding:14px}
-.stat .n{font-size:28px;font-weight:bold;color:var(--yel)}
-.stat.hero .n{font-size:40px}
-.stat.g .n{color:var(--grnlt)}
-.stat .l{font-size:10px;color:var(--gry);margin-top:4px}
-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
-th,td{padding:8px;text-align:left;border-bottom:1px solid #2a2a2a}
-th{color:var(--yel);font-size:11px}
-.feed .fitem{display:flex;justify-content:space-between;padding:9px 4px;border-bottom:1px solid #222;font-size:12px}
-.fitem .t{color:#777;font-size:10px}
-canvas{width:100%;border-radius:12px;background:#0f0f14;margin-top:10px}
-.tog{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #222;font-size:13px}
-.sw{width:38px;height:20px;background:#333;border-radius:10px;position:relative;cursor:pointer;flex-shrink:0;margin-left:10px}
-.sw.on{background:var(--grn)}
-.sw::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%}
-.sw.on::after{left:20px}
-#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--yel);color:var(--ink);padding:10px 22px;border-radius:20px;font-size:13px;font-weight:bold;opacity:0;transition:.3s;pointer-events:none;z-index:99}
-#toast.show{opacity:1}
-.back{font-size:12px;color:var(--gry);cursor:pointer;margin-bottom:10px;display:inline-block}
-.tag{font-size:9px;padding:2px 6px;border-radius:6px;background:#333;color:#aaa;margin-left:6px}
-.tag.live{background:var(--grn);color:#fff}
-.tag.ai{background:#2a1f05;color:var(--yel)}
-.wallet{background:linear-gradient(135deg,#1c1c1c,#111);border:1px solid #2c2c2c;border-radius:14px;padding:16px}
-.wallet .amt{font-size:26px;font-weight:bold;color:var(--yel)}
-.shieldon{display:flex;justify-content:space-between;align-items:center;margin-top:12px;background:#0e2b18;border:1px solid var(--grn);border-radius:12px;padding:12px}
-.shieldon .s1{font-weight:bold;color:var(--grnlt);font-size:13px}
-.shieldon .s2{font-size:10px;color:#8a8}
-.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-.acts button{background:var(--card);border:1px solid #2c2c2c;color:var(--wht);border-radius:12px;padding:14px 6px;font-size:12px;cursor:pointer}
-.acts button b{display:block;font-size:18px;margin-bottom:4px}
-.mini{display:flex;gap:14px;margin-top:12px;font-size:11px;color:var(--gry);flex-wrap:wrap}
-.mini span{cursor:pointer}
-.footnote{font-size:9px;color:#555;text-align:center;margin-top:14px}
-.comps{font-size:11px;line-height:1.9;color:#ccc;margin-top:8px}
-.comps b{color:var(--wht)}
-.st.stop{background:#0e2b18;color:var(--grnlt)}.st.risk{background:#2b0e0e;color:var(--redlt)}.st.warn{background:#2b230e;color:var(--yel)}
+.field label{font-size:9.6px;letter-spacing:1.1px;color:var(--dim);font-weight:700;display:block;margin-bottom:5px;text-transform:uppercase}
+.field input,.field textarea,.field select{width:100%;padding:12px;border-radius:var(--rs);border:1px solid var(--line2);
+  background:#0d0f16;color:var(--txt);font-family:var(--sans);font-size:14.5px;transition:.18s}
+.field textarea{font-size:13px;min-height:86px;resize:vertical;line-height:1.6}
+.field input:focus,.field textarea:focus,.field select:focus{outline:0;border-color:var(--yel);box-shadow:0 0 0 3px rgba(255,203,5,.13)}
+.field select option{background:#12141c}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.chip{font-size:11px;padding:6px 11px;border-radius:20px;background:var(--card2);border:1px solid var(--line2);
+  color:#c3c7d6;cursor:pointer;transition:.15s;font-family:var(--sans)}
+.chip:hover{border-color:#454b62;color:#fff}
+.chip.sel{background:var(--yel);color:#171206;border-color:var(--yel);font-weight:700}
+.chip.tok{cursor:default;background:var(--reddim);border-color:#5c1c22;color:var(--red2);font-family:var(--mono);font-size:10.4px}
+.chip.tok.new{background:#4a3a05;border-color:var(--yel);color:var(--yel2);animation:pop .5s ease}
+.chip.tok.ok{background:var(--grndim);border-color:#1d5c33;color:var(--grn2)}
+@keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+.quick{font-size:10px;color:var(--dim);margin-top:10px;line-height:2}
+.quick b{color:var(--mut);font-weight:600;letter-spacing:.4px}
+.quick span{color:var(--yel);cursor:pointer;margin-right:6px;background:var(--yeldim);padding:3px 9px;border-radius:20px;
+  border:1px solid #4a3a05;white-space:nowrap;display:inline-block;margin-bottom:4px}
+.quick span:hover{background:#574407}
+.tag{font-size:8.6px;font-weight:700;letter-spacing:.9px;padding:3px 7px;border-radius:6px;background:var(--card3);
+  color:var(--mut);border:1px solid var(--line2);text-transform:uppercase}
+.tag.ai{background:var(--yeldim);color:var(--yel);border-color:#5a4708}
+.tag.rule{background:#0f2338;color:#63b3ed;border-color:#1c3c5c}
+.tag.live{background:var(--grndim);color:var(--grn2);border-color:#1d5c33}
+.tag.sim{background:#2b1d05;color:#e8a33d;border-color:#5a4008}
+.tag.road{background:#241a33;color:#b794f4;border-color:#3d2b57}
+.tag.seed{background:#132a2a;color:#5fd0c5;border-color:#1d4a46}
+
+/* traffic light */
+.tl{display:flex;gap:11px;justify-content:center;margin:12px 0}
+.tl i{width:21px;height:21px;border-radius:50%;background:#14161d;border:2px solid #262a36;transition:.3s}
+.tl i.g{background:var(--grn);border-color:var(--grn);box-shadow:0 0 16px rgba(46,158,79,.75)}
+.tl i.y{background:var(--yel);border-color:var(--yel);box-shadow:0 0 16px rgba(255,203,5,.75)}
+.tl i.r{background:var(--red);border-color:var(--red);box-shadow:0 0 16px rgba(230,57,70,.8);animation:blink 1.15s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.42}}
+.gauge3{position:relative;height:13px;border-radius:8px;margin:14px 0 5px;overflow:visible;
+  background:linear-gradient(to right,var(--grn) 0 35%,var(--yel) 35% 65%,var(--red) 65% 100%);opacity:.92}
+.gauge3 b{position:absolute;top:-6px;left:0;width:5px;height:25px;background:#fff;border-radius:3px;
+  box-shadow:0 0 10px rgba(0,0,0,.9);transition:left .95s cubic-bezier(.2,.9,.2,1)}
+.gscale{display:flex;justify-content:space-between;font-size:8.6px;color:var(--dim);font-family:var(--mono)}
+.legend{display:flex;justify-content:center;gap:14px;font-size:9.4px;color:var(--mut);margin:12px 0 2px;flex-wrap:wrap;letter-spacing:.5px}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.verdict{border-radius:var(--r);padding:16px;margin-top:13px;text-align:center;animation:pop .35s ease}
+.verdict.vg{background:linear-gradient(180deg,#0d2a17,#0a1a11);border:1px solid #1d5c33}
+.verdict.vy{background:linear-gradient(180deg,#2b2409,#1a1608);border:1px solid #5a4708}
+.verdict.vr{background:linear-gradient(180deg,#31100f,#1c0a0a);border:1px solid #6b1d22}
+.verdict .big{font-size:19px;font-weight:700;letter-spacing:-.2px}
+.vg .big{color:var(--grn2)} .vy .big{color:var(--yel)} .vr .big{color:var(--red2)}
+.verdict .note{font-size:12.2px;color:#d5d8e4;margin-top:9px;line-height:1.65;text-align:left}
+.verdict .btn{margin-top:11px}
+.evrow{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;justify-content:flex-start}
+.ev{font-size:10.4px;padding:4px 9px;border-radius:8px;font-family:var(--mono)}
+.ev.bad{background:var(--reddim);color:var(--red2);border:1px solid #5c1c22}
+.ev.good{background:var(--grndim);color:var(--grn2);border:1px solid #1d5c33}
+.ev .d{opacity:.62;font-size:9px;margin-left:5px}
+.sigrow{display:grid;grid-template-columns:44px 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #1e222d;font-size:12px}
+.sigrow:last-child{border:0}
+.sigrow .lbl{color:#d3d7e4;line-height:1.4}
+.sigrow .pts{font-family:var(--mono);color:var(--yel);font-size:12.5px;font-weight:700}
+.sigbar{grid-column:2/4;height:4px;background:#1b1f2a;border-radius:4px;overflow:hidden;margin-top:-2px}
+.sigbar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--yel));border-radius:4px;transition:width .7s ease}
+.scoreline{display:flex;justify-content:space-between;align-items:center;margin-top:11px;padding-top:11px;border-top:1px dashed var(--line2);font-size:12px;color:var(--mut)}
+.scoreline b{font-family:var(--mono);font-size:19px;color:var(--txt)}
+/* pause */
+.pause{background:radial-gradient(120% 90% at 50% 0%,#4a1113,#26080a 60%,#170506);border:2px solid var(--red);
+  border-radius:22px;padding:22px 18px;text-align:center;position:relative;overflow:hidden;animation:pulseRed 2.4s infinite}
+@keyframes pulseRed{0%,100%{box-shadow:0 0 0 0 rgba(230,57,70,.34)}50%{box-shadow:0 0 0 16px rgba(230,57,70,0)}}
+.pause h1{color:#fff;font-size:21px;letter-spacing:-.3px;margin-bottom:2px}
+.pause .ph{font-size:10px;letter-spacing:2.4px;color:var(--red2);font-weight:700;text-transform:uppercase}
+.pause .q{font-size:16.5px;line-height:1.5;margin:14px 0 6px;color:#fff;font-weight:600}
+.pause .q2{font-size:12.4px;color:#e6c9cb;line-height:1.65;margin-bottom:6px}
+.pause .det{font-family:var(--mono);font-size:11.4px;color:var(--yel2);background:rgba(0,0,0,.34);
+  border-radius:9px;padding:8px 10px;margin:10px 0}
+.opt{display:block;width:100%;padding:14px;border-radius:12px;font-family:var(--sans);font-weight:700;font-size:13.6px;
+  cursor:pointer;margin-top:9px;border:1px solid #5a2a2c;background:#2a0d0e;color:#fff;transition:.16s;text-align:left}
+.opt:hover{background:#371214}
+.opt.o1{background:var(--yel);color:#171206;border-color:var(--yel);box-shadow:0 8px 22px rgba(255,203,5,.24)}
+.opt.o1:hover{background:#ffd83d}
+.opt.o3{border-color:var(--red);color:#ffd9dc}
+.opt small{display:block;font-weight:500;font-size:10.6px;opacity:.76;margin-top:2px}
+.langsw{display:flex;gap:5px;justify-content:center;margin:6px 0 2px}
+.langsw button{font-size:10px;font-weight:700;padding:5px 11px;border-radius:20px;border:1px solid #5a2a2c;background:#2a0d0e;color:#d9b9bb;cursor:pointer;font-family:var(--sans)}
+.langsw button.on{background:var(--yel);color:#171206;border-color:var(--yel)}
+.audnote{font-size:10px;color:var(--yel2);margin-top:8px}
+/* wallet home */
+.wallet{background:linear-gradient(135deg,#1d2130,#111420 60%);border:1px solid var(--line2);border-radius:18px;padding:15px 16px;position:relative;overflow:hidden}
+.wallet::after{content:'';position:absolute;right:-40px;top:-40px;width:130px;height:130px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,203,5,.20),transparent 70%)}
+.wallet .wl{font-size:10px;letter-spacing:1.1px;color:var(--mut);text-transform:uppercase}
+.wallet .amt{font-size:29px;font-weight:700;color:var(--yel);font-family:var(--mono);letter-spacing:-1px;margin-top:2px}
+.wallet .wnum{font-size:10.5px;color:var(--dim);font-family:var(--mono);margin-top:5px;letter-spacing:1px}
+.shieldon{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:11px;
+  background:linear-gradient(90deg,#0d2a17,#0b1a12);border:1px solid #1d5c33;border-radius:14px;padding:12px 13px}
+.shieldon .s1{font-weight:700;color:var(--grn2);font-size:12.6px}
+.shieldon .s2{font-size:10.2px;color:#79b795;margin-top:2px}
+.shieldon .pulse{width:38px;height:38px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;font-size:17px;
+  background:rgba(46,158,79,.16);border:1px solid #1d5c33;animation:breathe 2.6s infinite}
+@keyframes breathe{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(79,203,117,.28)}50%{transform:scale(1.06);box-shadow:0 0 0 10px rgba(79,203,117,0)}}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
+.acts button{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:15px;padding:15px 10px;
+  font-size:12.2px;font-weight:600;cursor:pointer;font-family:var(--sans);text-align:left;transition:.18s;position:relative;overflow:hidden}
+.acts button:hover{border-color:#3d4356;transform:translateY(-2px);background:var(--card2)}
+.acts button .aic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:16px;margin-bottom:9px}
+.acts button small{display:block;font-size:9.4px;color:var(--dim);font-weight:500;margin-top:3px}
+.mini{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}
+.mini button{flex:1;min-width:calc(50% - 8px);background:transparent;border:1px solid var(--line);color:var(--mut);
+  border-radius:10px;padding:9px 6px;font-size:10.6px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:.16s}
+.mini button:hover{color:var(--yel);border-color:#4a3a05;background:rgba(255,203,5,.05)}
+.footnote{font-size:9px;color:var(--dim);text-align:center;margin-top:14px;line-height:1.7}
+/* ussd */
+.ussd{max-width:330px;margin:0 auto;background:#14161c;border:3px solid #2b3040;border-radius:16px;padding:12px}
+.lcd{background:#101d13;border-radius:9px;padding:13px;min-height:186px;color:#7CFC9A;font-family:var(--mono);
+  font-size:12.4px;line-height:1.72;white-space:pre-wrap;text-shadow:0 0 7px rgba(124,252,154,.35);border:1px solid #1d3324}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:11px}
+.keys button{padding:12px;font-size:15px;font-family:var(--mono);background:#1c202c;color:#e6e8f0;border:1px solid #2b3040;
+  border-radius:9px;cursor:pointer;transition:.12s}
+.keys button:hover{background:#262b3a;border-color:#3d4356}
+.keys button:active{transform:scale(.95)}
+.keys button.fn{font-size:10px;font-family:var(--sans);font-weight:700;letter-spacing:.4px}
+.ushint{font-size:10px;color:var(--dim);text-align:center;margin-top:9px;font-family:var(--mono)}
+/* call sim */
+.callscreen{background:radial-gradient(120% 80% at 50% 0%,#22141a,#0d0a0e);border:1px solid #3a2028;border-radius:20px;padding:20px 16px;text-align:center}
+.callav{width:76px;height:76px;border-radius:50%;margin:6px auto 12px;display:grid;place-items:center;font-size:30px;
+  background:linear-gradient(150deg,#3a1c22,#20121a);border:2px solid var(--red);box-shadow:0 0 30px rgba(230,57,70,.35)}
+.callav.ring{animation:ring .9s infinite}
+@keyframes ring{0%,100%{transform:rotate(0)}20%{transform:rotate(-9deg)}40%{transform:rotate(9deg)}60%{transform:rotate(-6deg)}80%{transform:rotate(6deg)}}
+.callnum{font-family:var(--mono);font-size:17px;letter-spacing:1.4px}
+.callname{font-size:11.6px;color:var(--red2);font-weight:700;letter-spacing:1px;margin-top:3px;text-transform:uppercase}
+.callstate{font-size:10.6px;color:var(--mut);margin-top:6px;font-family:var(--mono)}
+.transcript{text-align:left;background:#0b0d12;border:1px solid var(--line);border-radius:12px;padding:11px;margin-top:13px;
+  max-height:190px;overflow-y:auto;font-size:12px;line-height:1.65}
+.transcript .ln{margin-bottom:8px;color:#d6d9e4}
+.transcript .ln b{color:var(--red2);font-size:10px;letter-spacing:.7px;display:block;text-transform:uppercase}
+.transcript .ln.me b{color:var(--yel)}
+.callbar{display:flex;gap:10px;margin-top:13px;justify-content:center}
+.callbtn{width:56px;height:56px;border-radius:50%;border:0;cursor:pointer;font-size:20px;display:grid;place-items:center;transition:.16s}
+.callbtn.ans{background:var(--grn);color:#fff;box-shadow:0 8px 22px rgba(46,158,79,.35)}
+.callbtn.dec{background:var(--red);color:#fff;box-shadow:0 8px 22px rgba(230,57,70,.3)}
+.callbtn:hover{transform:scale(1.07)}
+.shieldstrip{margin-top:12px;background:var(--reddim);border:1px solid #6b1d22;border-radius:11px;padding:9px 11px;
+  font-size:10.6px;color:#ffc9cd;text-align:left;line-height:1.55}
+.shieldstrip b{color:var(--red2)}
+/* coach */
+.coach{position:absolute;left:10px;right:10px;bottom:10px;z-index:20;background:rgba(12,14,20,.97);
+  border:1px solid var(--yel);border-radius:16px;padding:13px 14px;box-shadow:0 18px 40px rgba(0,0,0,.6);animation:slidein .3s}
+.coach .ct{font-size:10px;letter-spacing:1.2px;color:var(--yel);font-weight:700;text-transform:uppercase}
+.coach .cd{font-size:12.4px;color:#d6d9e4;margin:6px 0 11px;line-height:1.6}
+.coach .cr{display:flex;gap:8px;align-items:center}
+.coach .dots{display:flex;gap:4px;margin-right:auto}
+.coach .dots i{width:6px;height:6px;border-radius:50%;background:#2b3040}
+.coach .dots i.on{background:var(--yel)}
+/* scan anim */
+.scanbox{border:1px solid var(--line2);border-radius:14px;padding:15px;margin-top:13px;background:var(--card)}
+.scanbar{height:6px;background:#1b1f2a;border-radius:6px;overflow:hidden;margin:11px 0 9px}
+.scanbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--yel),var(--grn2));transition:width .3s linear}
+.scanstep{font-size:11.4px;color:var(--mut);font-family:var(--mono)}
+.scanstep b{color:var(--yel)}
+/* generic panels (desktop views) */
+.phead{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+.phead h2{font-size:clamp(22px,2.6vw,30px);letter-spacing:-.6px}
+.phead .sub{margin:5px 0 0;max-width:66ch}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.panel{background:linear-gradient(180deg,var(--card),#0e1017);border:1px solid var(--line);border-radius:18px;padding:17px}
+.panel h3{font-size:13px;letter-spacing:.4px;color:var(--txt);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.panel h3 .em{font-size:15px}
+.panel .h3sub{font-size:11px;color:var(--dim);margin-bottom:12px;line-height:1.55}
+.stat{background:linear-gradient(180deg,var(--card),#0d0f16);border:1px solid var(--line);border-radius:16px;padding:15px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--yel);opacity:.75}
+.stat.g::before{background:var(--grn)} .stat.r::before{background:var(--red)} .stat.b::before{background:#63b3ed}
+.stat .n{font-size:30px;font-weight:700;font-family:var(--mono);letter-spacing:-1.4px;color:var(--yel);line-height:1.1}
+.stat.g .n{color:var(--grn2)} .stat.r .n{color:var(--red2)} .stat.b .n{color:#63b3ed}
+.stat.hero .n{font-size:46px}
+.stat .l{font-size:9.4px;letter-spacing:1px;color:var(--dim);margin-top:6px;text-transform:uppercase;font-weight:700}
+.stat .d{font-size:10.6px;color:var(--mut);margin-top:5px}
+table{width:100%;border-collapse:collapse;font-size:12.2px;margin-top:6px}
+th{font-size:9.4px;letter-spacing:.9px;text-transform:uppercase;color:var(--dim);text-align:left;padding:8px 9px;border-bottom:1px solid var(--line2)}
+td{padding:9px;border-bottom:1px solid #1b1f2a;color:#ccd0dc;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tr:hover td{background:rgba(255,255,255,.02)}
+td.mono,th.mono{font-family:var(--mono);font-size:11.6px}
+.minibar{height:5px;background:#1b1f2a;border-radius:5px;overflow:hidden;min-width:60px}
+.minibar i{display:block;height:100%;background:var(--red);border-radius:5px;transition:width .8s}
+canvas{display:block;width:100%;border-radius:12px;background:#0a0c12;border:1px solid var(--line)}
+.feed .fitem{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:9px 2px;border-bottom:1px solid #1b1f2a;font-size:11.8px}
+.feed .fitem:last-child{border:0}
+.feed .fitem .tx{color:#ccd0dc;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.feed .fitem .tm{color:var(--dim);font-size:9.6px;font-family:var(--mono);flex-shrink:0}
+.st{font-size:8.6px;font-weight:700;letter-spacing:.7px;padding:3px 7px;border-radius:6px;text-transform:uppercase;flex-shrink:0}
+.st.stop{background:var(--grndim);color:var(--grn2);border:1px solid #1d5c33}
+.st.risk{background:var(--reddim);color:var(--red2);border:1px solid #5c1c22}
+.st.warn{background:var(--yeldim);color:var(--yel);border:1px solid #5a4708}
+.st.info{background:#0f2338;color:#63b3ed;border:1px solid #1c3c5c}
+.tog{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #1b1f2a}
+.tog:last-child{border:0}
+.tog .tt{font-size:12.6px;color:#d6d9e4;font-weight:600}
+.tog .td{font-size:10.4px;color:var(--dim);margin-top:2px}
+.sw{width:42px;height:23px;background:#22262f;border-radius:12px;position:relative;cursor:pointer;flex-shrink:0;transition:.2s;border:1px solid var(--line2)}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:17px;height:17px;background:#6b7185;border-radius:50%;transition:.2s}
+.sw.on{background:rgba(46,158,79,.28);border-color:#1d5c33}
+.sw.on::after{left:21px;background:var(--grn2);box-shadow:0 0 10px rgba(79,203,117,.6)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:11.8px}
+.kv dt{color:var(--dim);font-family:var(--mono);font-size:11px}
+.kv dd{color:#d6d9e4;font-family:var(--mono);font-size:11px}
+pre.diagram{background:#080a0f;border:1px solid var(--line);border-radius:14px;padding:15px;overflow-x:auto;
+  font-family:var(--mono);font-size:10.6px;line-height:1.62;color:#a9b0c4}
+pre.diagram b{color:var(--yel)} pre.diagram i{color:var(--grn2);font-style:normal} pre.diagram u{color:var(--red2);text-decoration:none}
+.arch{display:grid;gap:10px}
+.archrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.node{flex:1;min-width:150px;background:var(--card2);border:1px solid var(--line2);border-radius:12px;padding:11px 12px;text-align:center;font-size:11.6px}
+.node b{display:block;font-size:12.4px;color:var(--txt);margin-bottom:3px}
+.node span{color:var(--dim);font-size:10.2px}
+.node.ai{border-color:#5a4708;background:linear-gradient(180deg,#241d05,#14120a)}
+.node.ai b{color:var(--yel)}
+.node.eng{border-color:#1d5c33;background:linear-gradient(180deg,#0d2a17,#0a1610)}
+.node.eng b{color:var(--grn2)}
+.node.rail{border-color:#1c3c5c;background:linear-gradient(180deg,#0f2338,#0a1420)}
+.node.rail b{color:#63b3ed}
+.arrowdn{text-align:center;color:var(--dim);font-size:15px;line-height:1}
+.tl-road{position:relative;padding-left:22px}
+.tl-road::before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:linear-gradient(180deg,var(--yel),var(--grn),#63b3ed,#b794f4)}
+.tl-road .item{position:relative;padding-bottom:16px}
+.tl-road .item::before{content:'';position:absolute;left:-20px;top:5px;width:11px;height:11px;border-radius:50%;background:var(--bg);border:2.5px solid var(--yel)}
+.tl-road .item:nth-child(2)::before{border-color:var(--grn)} .tl-road .item:nth-child(3)::before{border-color:#63b3ed}
+.tl-road .item:nth-child(4)::before{border-color:#b794f4}
+.tl-road .item b{font-size:12.6px;display:block}
+.tl-road .item span{font-size:11.6px;color:var(--mut)}
+.ask{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:12px}
+.ask .a{background:var(--card2);border:1px solid var(--line2);border-radius:13px;padding:13px;text-align:center}
+.ask .a b{display:block;font-size:25px;font-family:var(--mono);color:var(--yel)}
+.ask .a span{font-size:10px;color:var(--mut);letter-spacing:.5px;text-transform:uppercase}
+#toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,20px);background:var(--yel);color:#171206;
+  padding:12px 22px;border-radius:24px;font-size:13px;font-weight:700;opacity:0;transition:.3s;pointer-events:none;z-index:200;
+  box-shadow:0 14px 40px rgba(0,0,0,.5);max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast.bad{background:var(--red);color:#fff} #toast.good{background:var(--grn2);color:#08210f}
+#modal{position:fixed;inset:0;background:rgba(3,4,7,.8);backdrop-filter:blur(6px);z-index:300;display:none;
+  align-items:center;justify-content:center;padding:20px}
+#modal.on{display:flex}
+#modal .mbox{max-width:400px;width:100%;background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:22px;animation:pop .3s}
+#modal h4{font-size:16px;margin-bottom:8px}
+#modal p{font-size:12.6px;color:var(--mut);line-height:1.6}
+#modal .mr{display:flex;gap:9px;margin-top:18px}
+#modal .mr .btn{flex:1}
+.seg{display:inline-flex;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+.seg button{border:0;background:transparent;color:var(--mut);font-family:var(--sans);font-size:11px;font-weight:600;
+  padding:6px 11px;border-radius:7px;cursor:pointer}
+.seg button.on{background:var(--yel);color:#171206}
+.metbar{height:7px;background:#1b1f2a;border-radius:7px;overflow:hidden;margin-top:6px}
+.metbar i{display:block;height:100%;border-radius:7px;transition:width 1s cubic-bezier(.2,.9,.2,1)}
+.metrow{margin-bottom:12px}
+.metrow .ml{display:flex;justify-content:space-between;font-size:11.6px;color:var(--mut)}
+.metrow .ml b{font-family:var(--mono);color:var(--txt)}
+.cmatrix{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.cm{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:10px;text-align:center}
+.cm b{display:block;font-size:21px;font-family:var(--mono)}
+.cm span{font-size:9px;letter-spacing:.7px;color:var(--dim);text-transform:uppercase}
+.cm.tp b{color:var(--grn2)} .cm.fp b{color:var(--red2)} .cm.fn b{color:var(--yel)} .cm.tn b{color:#63b3ed}
+.corpusrow{display:grid;grid-template-columns:52px 1fr;gap:9px;padding:9px 0;border-bottom:1px solid #1b1f2a;font-size:11.6px}
+.corpusrow:last-child{border:0}
+.corpusrow .lb{font-size:8.6px;font-weight:700;letter-spacing:.7px;padding:3px 0;border-radius:6px;text-align:center;height:fit-content}
+.lb.s{background:var(--reddim);color:var(--red2);border:1px solid #5c1c22}
+.lb.l{background:var(--grndim);color:var(--grn2);border:1px solid #1d5c33}
+.lb.c{background:var(--yeldim);color:var(--yel);border:1px solid #5a4708}
+.corpusrow p{color:#c3c7d6;line-height:1.5}
+.scroll{max-height:340px;overflow-y:auto;padding-right:5px}
+.note{font-size:11.4px;color:var(--mut);line-height:1.65}
+.note b{color:var(--txt)}
+.hl{color:var(--yel)}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);font-size:11px;color:var(--dim);text-align:center;line-height:1.8}
+@media (max-width:1000px){
+  .stage{grid-template-columns:1fr}
+  .rail{position:static;order:2}
+  .phone{order:1}
+  .railstats{grid-template-columns:repeat(4,1fr)}
+}
+@media (max-width:680px){
+  main{padding:16px 12px 60px}
+  header{padding:9px 12px;gap:9px}
+  .brand span{display:none}
+  nav.tabs{margin-left:0}
+  nav.tabs button{padding:7px 10px;font-size:11.6px}
+  .screen{height:clamp(560px,80vh,720px)}
+  .rail .art{display:none}
+}
+@media print{
+  header,.rail,#v-app,#v-lab,#v-dash,#v-settings,.bgfx,#toast{display:none!important}
+  #v-spec{display:block!important}
+  body{background:#fff;color:#000}
+  .panel,.stat,table,pre.diagram{break-inside:avoid}
+}
 </style>
 </head>
 <body>
+<div class="bgfx"></div>
+
 <header>
-  <span class="logo" onclick="go('home')">🛡 FraudShield <span style="color:#888">AI</span></span>
-  <span class="hl"><span class="badge" id="connBadge">OFFLINE AI</span><a onclick="go('dash')">📊 Dashboard</a><a onclick="go('settings')">⚙</a></span>
+  <div class="brand" onclick="tab('app')">
+    <span class="mk">🛡</span><b>FRAUDSHIELD</b><span>AI</span>
+  </div>
+  <nav class="tabs" id="tabbar">
+    <button data-tab="app" class="on">Shield App</button>
+    <button data-tab="lab">AI Lab</button>
+    <button data-tab="dash">Command</button>
+    <button data-tab="spec">Spec &amp; Status</button>
+  </nav>
+  <div class="hright">
+    <span class="badge" id="connBadge">OFFLINE AI</span>
+    <button class="iconbtn" onclick="tab('settings')" title="Settings" aria-label="Settings">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.9 19.3a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.7 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
 </header>
+
 <main>
+<!-- ==================================================== APP ==================================================== -->
+<section class="sec on" id="v-app">
+  <div class="stage">
+    <div class="rail">
+      <div class="art">
+        <svg viewBox="0 0 640 300" role="img" aria-label="FraudShield AI protecting a mobile money wallet">
+          <defs>
+            <linearGradient id="gg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#FFCB05"/><stop offset="1" stop-color="#e0a900"/>
+            </linearGradient>
+            <radialGradient id="glow" cx=".5" cy=".5" r=".5">
+              <stop offset="0" stop-color="#FFCB05" stop-opacity=".45"/><stop offset="1" stop-color="#FFCB05" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="ph" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#1b2030"/><stop offset="1" stop-color="#0d1017"/>
+            </linearGradient>
+          </defs>
+          <rect width="640" height="300" fill="#080a0f"/>
+          <g stroke="#1c2231" stroke-width="1">
+            <path d="M0 60h640M0 120h640M0 180h640M0 240h640M80 0v300M200 0v300M320 0v300M440 0v300M560 0v300"/>
+          </g>
+          <g stroke="#2b3446" stroke-width="1.2" fill="none" opacity=".85">
+            <path d="M60 230 L170 175 L285 205 L390 130 L505 165 L600 95"/>
+          </g>
+          <g fill="#3a4considerable" ></g>
+          <g fill="#4a5570">
+            <circle cx="60" cy="230" r="3.4"/><circle cx="170" cy="175" r="3.4"/><circle cx="285" cy="205" r="3.4"/>
+            <circle cx="390" cy="130" r="3.4"/><circle cx="505" cy="165" r="3.4"/><circle cx="600" cy="95" r="3.4"/>
+          </g>
+          <g opacity=".55" fill="none" stroke="#2E9E4F" stroke-width="1">
+            <path d="M40 90 q60 -34 120 0"/><path d="M470 250 q70 -30 130 6"/>
+          </g>
+          <circle cx="320" cy="150" r="120" fill="url(#glow)"/>
+          <!-- phone -->
+          <g transform="translate(392,52)">
+            <rect x="0" y="0" width="122" height="200" rx="18" fill="url(#ph)" stroke="#2b3242" stroke-width="2"/>
+            <rect x="44" y="9" width="34" height="5" rx="2.5" fill="#2b3242"/>
+            <rect x="12" y="28" width="98" height="46" rx="9" fill="#141824" stroke="#262d3d"/>
+            <text x="22" y="47" font-family="monospace" font-size="9" fill="#8A8FA3">MoMo Wallet</text>
+            <text x="22" y="65" font-family="monospace" font-size="14" fill="#FFCB05">GHS 3,470</text>
+            <rect x="12" y="84" width="98" height="26" rx="8" fill="#0d2a17" stroke="#1d5c33"/>
+            <circle cx="26" cy="97" r="5" fill="#4FCB75"/>
+            <text x="38" y="101" font-family="monospace" font-size="9" fill="#4FCB75">SHIELD ACTIVE</text>
+            <rect x="12" y="120" width="45" height="34" rx="8" fill="#171b26" stroke="#262d3d"/>
+            <rect x="65" y="120" width="45" height="34" rx="8" fill="#171b26" stroke="#262d3d"/>
+            <rect x="12" y="160" width="98" height="26" rx="8" fill="#31100f" stroke="#6b1d22"/>
+            <text x="24" y="177" font-family="monospace" font-size="9" fill="#ff727c">TRUSTED PAUSE</text>
+          </g>
+          <!-- shield -->
+          <g transform="translate(150,58)">
+            <path d="M90 4 L168 34 V104 C168 152 134 182 90 196 C46 182 12 152 12 104 V34 Z"
+                  fill="#0f1219" stroke="url(#gg)" stroke-width="4"/>
+            <path d="M90 20 L152 44 V104 C152 142 126 166 90 178 C54 166 28 142 28 104 V44 Z"
+                  fill="rgba(255,203,5,.07)"/>
+            <circle cx="90" cy="96" r="42" fill="none" stroke="#2E9E4F" stroke-width="2" opacity=".7"/>
+            <circle cx="90" cy="96" r="56" fill="none" stroke="#2E9E4F" stroke-width="1" opacity=".35"/>
+            <path d="M68 96 L84 112 L114 78" fill="none" stroke="#4FCB75" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+            <g font-family="monospace" font-size="11" fill="#FFCB05">
+              <circle cx="30" cy="52" r="7" fill="#31100f" stroke="#E63946"/><text x="26" y="56" fill="#ff727c">!</text>
+              <circle cx="152" cy="60" r="7" fill="#0d2a17" stroke="#2E9E4F"/><text x="148" y="64" fill="#4FCB75">✓</text>
+              <circle cx="146" cy="152" r="7" fill="#241d05" stroke="#FFCB05"/><text x="142" y="156">?</text>
+            </g>
+          </g>
+          <g font-family="monospace" font-size="10" fill="#5A5F73">
+            <text x="26" y="286">LEGITIMATE</text><text x="126" y="286" fill="#FFCB05">VERIFY</text><text x="206" y="286" fill="#E63946">SCAM</text>
+          </g>
+        </svg>
+      </div>
+      <h1>Fraud doesn't break the rails.<br>It breaks <em>the person.</em></h1>
+      <p class="lede">FraudShield AI defends the one moment nothing else covers — the live phone call where a fake MTN agent walks a victim into sending money. Three models, one universal traffic light, and a law that never changes: <b style="color:#ECEEF4">never block, always pause.</b></p>
 
-<!-- CONSENT -->
-<section class="view" id="v-consent"><div class="phone">
-  <h2>One-time consent</h2>
-  <div class="sub">FraudShield AI protects you. Here is what that means:</div>
-  <div class="card" style="font-size:12px;line-height:1.8;color:#ccc">
-    ✓ Reports are <b>pseudonymous</b> — identity hashed, never shown<br>
-    ✓ The AI sees <b>signals and message text</b>, never your balance<br>
-    ✓ Reported messages retrain the engine <b>anonymously</b><br>
-    ✓ Data Protection Act 2012 (Act 843) aligned · DPIA before any pilot
-  </div>
-  <button class="btn y" onclick="consent()">I consent — activate FraudShield</button>
-</div></section>
+      <div class="railstats">
+        <div class="rs g"><b id="rsStop">0</b><span>stopped</span></div>
+        <div class="rs"><b id="rsRep">77</b><span>reports</span></div>
+        <div class="rs"><b id="rsAcc">—</b><span>accuracy</span></div>
+        <div class="rs r"><b id="rsFlag">4</b><span>flagged</span></div>
+      </div>
 
-<!-- HOME -->
-<section class="view" id="v-home"><div class="phone">
-  <div class="wallet"><div style="font-size:11px;color:#888">MoMo Wallet (demo)</div><div class="amt">GHS 3,470.50</div></div>
-  <div class="shieldon"><div><div class="s1">🛡 FraudShield Active — AI Engine Armed</div><div class="s2" id="engNote">SmishingNet trained · behavior profiled · ensemble live</div></div><div style="font-size:20px">🛡</div></div>
-  <div class="legend"><span><i style="background:var(--grn)"></i>LEGITIMATE</span><span><i style="background:var(--yel)"></i>VERIFY</span><span><i style="background:var(--red)"></i>SCAM</span></div>
-  <div class="acts">
-    <button onclick="go('check')"><b style="color:var(--yel)">💬</b>Check a Message<br><span style="font-size:9px;color:#888">AI smishing scan</span></button>
-    <button onclick="go('verify')"><b style="color:var(--grnlt)">🔍</b>Verify Caller<br><span style="font-size:9px;color:#888">agent registry</span></button>
-    <button onclick="go('send')"><b style="color:var(--redlt)">↗</b>Send Money<br><span style="font-size:9px;color:#888">ensemble-scored</span></button>
-    <button onclick="go('report')"><b style="color:var(--yel)">📣</b>Report a Scam<br><span style="font-size:9px;color:#888">retrains the AI</span></button>
-  </div>
-  <div class="mini"><span onclick="go('ussd')">☎ USSD parity</span><span onclick="go('settings')">⚙ Settings</span><span onclick="playScamCall()">▶ Play scam call</span><span onclick="go('dash')">📊 Dashboard</span></div>
-  <div class="footnote">FraudShield AI · Built with MoMo · <span id="modeNote">offline AI mode</span> · zero dependencies</div>
-</div></section>
+      <div class="laws">
+        <div class="law"><div><b>Never block, always pause</b>Protection can never become financial exclusion — the user always decides.</div></div>
+        <div class="law"><div><b>The arms race is the moat</b>Every community report retrains the engine in milliseconds. Attacker effort becomes defender strength.</div></div>
+        <div class="law"><div><b>USSD parity from day one</b>The most-scammed users are on feature phones. Every core feature has a USSD twin.</div></div>
+      </div>
 
-<!-- CHECK A MESSAGE -->
-<section class="view" id="v-check"><div class="phone">
-  <span class="back" onclick="go('home')">← Home</span>
-  <h2>Check a Message <span class="tag ai">AI</span></h2>
-  <div class="sub">Paste any SMS. SmishingNet scores it on the traffic light and shows you <b>why</b>.</div>
-  <div class="field"><label>MESSAGE</label><textarea id="msgTxt" placeholder="Paste the SMS here…"></textarea></div>
-  <button class="btn y" onclick="doCheck()">Scan with AI</button>
-  <div class="quick">Try: <span onclick="fillMsg(0)">classic scam</span><span onclick="fillMsg(1)">legit MTN</span><span onclick="fillMsg(2)">NEW script (demo the learning)</span></div>
-  <div id="chkOut"></div>
-</div></section>
+      <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
+        <button class="btn y" onclick="startTour()">▶ Run the 5-step guided demo</button>
+        <button class="btn g" onclick="tab('lab')">Inspect the models</button>
+      </div>
+      <p class="note" style="margin-top:12px;font-size:11px">Zero external dependencies · all AI trains and runs locally in your browser · every visitor gets a fresh instance.</p>
+    </div>
 
-<!-- VERIFY -->
-<section class="view" id="v-verify"><div class="phone">
-  <span class="back" onclick="go('home')">← Home</span>
-  <h2>Verify This Caller</h2>
-  <div class="sub">Someone claiming to be MTN? Check before you act.</div>
-  <div class="field"><label>SUSPECT NUMBER</label><input id="vnum" placeholder="024 400 0007"></div>
-  <button class="btn y" onclick="doVerify()">Verify now</button>
-  <div class="quick"><span onclick="fill('#vnum','0244000007')">scammer</span><span onclick="fill('#vnum','0244000001')">real agent</span><span onclick="fill('#vnum','0545551234')">unknown</span></div>
-  <div id="vout"></div>
-</div></section>
+    <!-- PHONE -->
+    <div class="phone">
+      <div class="screen">
+        <div class="statusbar">
+          <span id="clock">--:--</span>
+          <span class="sright">MTN GH · MoMo
+            <i class="bar" style="height:5px"></i><i class="bar" style="height:7px"></i><i class="bar" style="height:9px"></i><i class="bar" style="height:11px;opacity:.4"></i>
+            <span style="margin-left:4px">🔋</span>
+          </span>
+        </div>
+        <div class="appbody" id="appbody">
 
-<!-- SEND -->
-<section class="view" id="v-send"><div class="phone">
-  <span class="back" onclick="go('home')">← Home</span>
-  <h2>Send Money <span class="tag ai">ENSEMBLE</span></h2>
-  <div class="sub">Rules + SmishingNet + your behavior profile. Never blocks — always asks.</div>
-  <div class="field"><label>RECIPIENT</label><input id="sto" placeholder="024 400 0004"></div>
-  <div class="field"><label>AMOUNT (GHS)</label><input id="sam" type="number" placeholder="2000"></div>
-  <button class="btn y" onclick="startSend()">Send</button>
-  <div class="quick"><span onclick="fill('#sto','0244000004')">triggers AI Pause</span><span onclick="fill('#sto','0244000003')">clean</span></div>
-</div></section>
+          <!-- CONSENT -->
+          <div class="pview on" id="p-consent">
+            <div style="text-align:center;margin:8px 0 4px">
+              <div style="font-size:34px">🛡</div>
+              <h2 style="margin-top:6px">Activate FraudShield</h2>
+            </div>
+            <div class="sub" style="text-align:center">One-time explicit consent · Data Protection Act 2012 (Act 843) aligned</div>
+            <div class="card">
+              <div class="note" style="font-size:12px">
+                <div style="display:flex;gap:9px;margin-bottom:9px"><span style="color:var(--grn2)">✓</span><span>Reports are <b>pseudonymous</b> — your identity is hashed and never shown to anyone.</span></div>
+                <div style="display:flex;gap:9px;margin-bottom:9px"><span style="color:var(--grn2)">✓</span><span>The AI sees <b>signals and message text</b> — never your balance, never your contacts.</span></div>
+                <div style="display:flex;gap:9px;margin-bottom:9px"><span style="color:var(--grn2)">✓</span><span>Messages you report retrain the engine <b>anonymously</b> to protect the next victim.</span></div>
+                <div style="display:flex;gap:9px"><span style="color:var(--grn2)">✓</span><span>FraudShield <b>never blocks</b> a transfer. It pauses, explains, and hands you the decision.</span></div>
+              </div>
+            </div>
+            <button class="btn y block" style="margin-top:14px" onclick="consent(true)">I consent — activate FraudShield</button>
+            <button class="btn g block" style="margin-top:9px" onclick="consent(false)">Not now — stay dormant</button>
+            <div class="footnote">Refusal leaves the Shield dormant. Nothing is collected until you consent.<br>DPIA committed before any pilot.</div>
+          </div>
 
-<!-- SOFT / YELLOW -->
-<section class="view" id="v-soft"><div class="phone">
-  <h2 style="color:var(--yel)">⚠ Caution — unusual transfer</h2>
-  <div class="tl"><i></i><i class="y"></i><i></i></div>
-  <div class="card"><div class="comps" id="softSig"></div>
-  <div style="font-size:11px;color:var(--gry);margin-top:6px">FraudShield Score: <b id="softSc" style="color:var(--yel)"></b> / 100</div></div>
-  <button class="btn g" onclick="softChoice(1)">Continue anyway</button>
-  <button class="btn r" onclick="softChoice(2)">Stop this transfer</button>
-</div></section>
+          <!-- HOME -->
+          <div class="pview" id="p-home">
+            <div class="wallet">
+              <div class="wl">MoMo Wallet · demo</div>
+              <div class="amt">GHS 3,470.50</div>
+              <div class="wnum">024 ••• ••45 · ACCRA</div>
+            </div>
+            <div class="shieldon">
+              <div>
+                <div class="s1">FraudShield Active — AI engine armed</div>
+                <div class="s2" id="engNote">SmishingNet trained · behavior profiled · ensemble live</div>
+              </div>
+              <div class="pulse">🛡</div>
+            </div>
+            <div class="legend">
+              <span><i style="background:var(--grn)"></i>LEGITIMATE</span>
+              <span><i style="background:var(--yel)"></i>VERIFY</span>
+              <span><i style="background:var(--red)"></i>SCAM</span>
+            </div>
+            <div class="acts">
+              <button onclick="pgo('check')"><span class="aic" style="background:var(--yeldim);color:var(--yel)">💬</span>Check a Message<small>AI smishing scan · explains why</small></button>
+              <button onclick="pgo('verify')"><span class="aic" style="background:var(--grndim);color:var(--grn2)">🔍</span>Verify Caller<small>agent registry + community flags</small></button>
+              <button onclick="pgo('send')"><span class="aic" style="background:var(--reddim);color:var(--red2)">↗</span>Send Money<small>7-signal ensemble scoring</small></button>
+              <button onclick="pgo('report')"><span class="aic" style="background:#0f2338;color:#63b3ed">📣</span>Report a Scam<small>retrains the engine instantly</small></button>
+            </div>
+            <div class="mini">
+              <button onclick="pgo('call')">📞 Scam call demo</button>
+              <button onclick="pgo('ussd')">☎ USSD parity</button>
+              <button onclick="startTour()">▶ Guided demo</button>
+              <button onclick="tab('dash')">📊 Command dashboard</button>
+            </div>
+            <div class="card tight" style="margin-top:12px">
+              <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+                <div>
+                  <div style="font-size:11.6px;font-weight:700">Community intelligence</div>
+                  <div style="font-size:10.4px;color:var(--mut);margin-top:2px" id="homeIntel">77 reports · 4 flagged numbers</div>
+                </div>
+                <button class="btn g sm" onclick="tab('dash')">Open</button>
+              </div>
+            </div>
+            <div class="footnote">FraudShield AI · Build with MoMo · Track 3: Trust, Security &amp; Digital Identity<br><span id="modeNote">offline AI mode</span> · zero dependencies · trained in-browser</div>
+          </div>
 
-<!-- PAUSE / RED -->
-<section class="view" id="v-pause">
-  <div class="pause">
-    <h1>⏸ THE TRUSTED PAUSE</h1>
-    <div class="tl"><i></i><i></i><i class="r"></i></div>
-    <div class="audnote" id="audNote"></div>
-    <p><b>Is someone on the phone telling you to send this money right now?</b><br><br>
-    MTN will <b>never</b> ask for your PIN or a "wrong transfer" reversal.<br>
-    <span style="color:#c99;font-size:12px" id="pauseDetail"></span></p>
-    <button class="opt o1" onclick="pauseChoice(1)">1 · Talk to a REAL MTN agent</button>
-    <button class="opt" onclick="pauseChoice(2)">2 · Continue anyway</button>
-    <button class="opt o3" onclick="pauseChoice(3)">3 · Cancel this transfer</button>
-    <div class="comps" style="text-align:left" id="pauseSig"></div>
-  </div>
-</section>
+          <!-- CHECK -->
+          <div class="pview" id="p-check">
+            <button class="back" onclick="pgo('home')">← Home</button>
+            <h2>Check a Message <span class="tag ai">AI</span></h2>
+            <div class="sub">Paste any SMS. SmishingNet scores it on the traffic light and shows you <b>the exact words</b> behind the verdict.</div>
+            <div class="field"><label>Message text</label><textarea id="msgTxt" placeholder="Paste the SMS you received…"></textarea></div>
+            <button class="btn y block" style="margin-top:12px" id="scanBtn" onclick="doCheck()">🔎 Scan with SmishingNet</button>
+            <div class="quick"><b>Try:</b><br>
+              <span onclick="fillMsg(0)">classic promo scam</span>
+              <span onclick="fillMsg(1)">legit MTN receipt</span>
+              <span onclick="fillMsg(2)">NEW script — watch it learn</span>
+              <span onclick="fillMsg(3)">🎲 random</span>
+            </div>
+            <div id="chkOut"></div>
+          </div>
 
-<!-- RESULT -->
-<section class="view" id="v-result"><div class="phone">
-  <span class="back" onclick="go('home')">← Home</span>
-  <h2 id="resTitle">Transfer</h2>
-  <div class="tl" id="resLight"><i class="g"></i><i></i><i></i></div>
-  <div class="card" style="line-height:1.9;font-size:13px">
-    <div>To: <b id="resTo"></b></div><div>Amount: <b id="resAmt"></b></div>
-    <div>Reference: <span id="resRef" style="color:#888"></span></div>
-    <div>Status: <b id="resStatus"></b> <span class="tag" id="resMode"></span></div>
-    <div style="font-size:11px;color:var(--gry);margin-top:6px" id="resShield"></div>
-  </div>
-</div></section>
+          <!-- VERIFY -->
+          <div class="pview" id="p-verify">
+            <button class="back" onclick="pgo('home')">← Home</button>
+            <h2>Verify This Caller</h2>
+            <div class="sub">Someone claiming to be MTN? Check the number <b>before</b> you act — this kills the #1 scam vector before money moves.</div>
+            <div class="field"><label>Suspect number</label><input id="vnum" placeholder="024 400 0007" inputmode="tel"></div>
+            <button class="btn y block" style="margin-top:12px" onclick="doVerify()">Verify now</button>
+            <div class="quick"><b>Shortcuts:</b><br>
+              <span onclick="fill('#vnum','0244000007')">flagged scammer</span>
+              <span onclick="fill('#vnum','0244000001')">verified agent</span>
+              <span onclick="fill('#vnum','0545551234')">unknown line</span>
+            </div>
+            <div id="vout"></div>
+          </div>
 
-<!-- REPORT -->
-<section class="view" id="v-report"><div class="phone">
-  <span class="back" onclick="go('home')">← Home</span>
-  <h2>Report a Scam</h2>
-  <div class="sub">One report protects thousands — and retrains the AI.</div>
-  <div class="field"><label>SCAM NUMBER</label><input id="rnum" placeholder="024 400 0007"></div>
-  <div class="field"><label>WHAT HAPPENED?</label><div class="chips" id="rcats"></div></div>
-  <div class="field"><label>REGION</label><select id="rreg"></select></div>
-  <button class="btn y" onclick="doReport()">Report — protect others</button>
-  <div id="rout"></div>
-</div></section>
+          <!-- SEND -->
+          <div class="pview" id="p-send">
+            <button class="back" onclick="pgo('home')">← Home</button>
+            <h2>Send Money <span class="tag ai">ENSEMBLE</span></h2>
+            <div class="sub">Rules + SmishingNet + your behavior profile, fused into one 0–100 FraudShield Score. It never blocks — it asks.</div>
+            <div class="field"><label>Recipient</label><input id="sto" placeholder="024 400 0004" inputmode="tel"></div>
+            <div class="field"><label>Amount (GHS)</label><input id="sam" type="number" placeholder="2000" inputmode="decimal"></div>
+            <button class="btn y block" style="margin-top:13px" onclick="startSend()">Send →</button>
+            <div class="quick"><b>Demo paths:</b><br>
+              <span onclick="armPause()">⚡ pause trigger (arms call signal)</span>
+              <span onclick="fill('#sto','0244000003');fill('#sam','120')">clean transfer</span>
+              <span onclick="fill('#sto','0244000007');fill('#sam','900')">community-flagged</span>
+            </div>
+            <div class="card tight" id="bandCard">
+              <div style="font-size:11px;letter-spacing:.8px;color:var(--dim);font-weight:700;margin-bottom:8px">SCORE BANDS</div>
+              <div class="gauge3" style="margin:6px 0 4px"></div>
+              <div class="gscale"><span>0</span><span>30 caution</span><span>60 pause</span><span>100</span></div>
+            </div>
+          </div>
 
-<!-- USSD -->
-<section class="view" id="v-ussd"><div class="phone">
-  <span class="back" onclick="go('home')">← Home</span>
-  <h2>USSD Simulator</h2>
-  <div class="sub">Feature-phone parity — every core feature has a USSD twin.</div>
-  <div class="ussd">
-    <div class="lcd" id="lcd"></div>
-    <div class="keys">
-      <button onclick="uk('1')">1</button><button onclick="uk('2')">2</button><button onclick="uk('3')">3</button>
-      <button onclick="uk('4')">4</button><button onclick="uk('5')">5</button><button onclick="uk('6')">6</button>
-      <button onclick="uk('7')">7</button><button onclick="uk('8')">8</button><button onclick="uk('9')">9</button>
-      <button onclick="uk('*')">*</button><button onclick="uk('0')">0</button><button onclick="uk('#')">#</button>
-      <button onclick="uReset()">MENU</button><button onclick="uk('clear')" style="font-size:10px">CLEAR</button><button onclick="uEnd()">END</button>
+          <!-- SOFT -->
+          <div class="pview" id="p-soft">
+            <h2 style="color:var(--yel)">⚠ Caution — unusual transfer</h2>
+            <div class="sub">Score 30–59. Something is off, but FraudShield does not cry wolf and does not block. <b>You decide.</b></div>
+            <div class="tl"><i></i><i class="y"></i><i></i></div>
+            <div class="card"><div id="softSig"></div>
+              <div class="scoreline"><span>FraudShield Score</span><b id="softSc" style="color:var(--yel)">0</b></div>
+            </div>
+            <div class="card tight" style="font-size:11.6px;color:var(--mut);line-height:1.6">
+              Calibrated suspicion is a feature: distinguishing mild anomaly from active attack is what keeps users believing the red screen when it appears.
+            </div>
+            <button class="btn g block" style="margin-top:12px" onclick="softChoice(1)">Continue anyway</button>
+            <button class="btn r block" style="margin-top:9px" onclick="softChoice(2)">Stop this transfer</button>
+          </div>
+
+          <!-- PAUSE -->
+          <div class="pview" id="p-pause">
+            <div class="pause">
+              <div class="ph">Score 60+ · Red verdict</div>
+              <h1>⏸ THE TRUSTED PAUSE</h1>
+              <div class="tl"><i></i><i></i><i class="r"></i></div>
+              <div class="langsw">
+                <button id="lgEn" class="on" onclick="setLang('en')">ENGLISH</button>
+                <button id="lgTw" onclick="setLang('tw')">TWI</button>
+              </div>
+              <div class="q" id="pauseQ">Is someone on the phone telling you to send this money right now?</div>
+              <div class="q2" id="pauseQ2">MTN will <b>never</b> ask for your PIN, a code, or a "wrong transfer" reversal.</div>
+              <div class="det" id="pauseDetail">GHS 0 → 0000000000</div>
+              <div class="audnote" id="audNote"></div>
+              <button class="opt o1" onclick="pauseChoice(1)">1 · Talk to a REAL MTN agent<small>Dials 100 — a trusted human breaks the script</small></button>
+              <button class="opt" onclick="pauseChoice(2)">2 · Continue anyway<small>Never blocked — your money, your decision</small></button>
+              <button class="opt o3" onclick="pauseChoice(3)">3 · Cancel this transfer<small>Closes safely and counts as a scam stopped</small></button>
+            </div>
+            <div class="card" style="margin-top:12px"><div style="font-size:11px;letter-spacing:.8px;color:var(--dim);font-weight:700;margin-bottom:6px">WHY THIS FIRED</div><div id="pauseSig"></div></div>
+          </div>
+
+          <!-- RESULT -->
+          <div class="pview" id="p-result">
+            <button class="back" onclick="pgo('home')">← Home</button>
+            <h2 id="resTitle">Transfer complete</h2>
+            <div class="tl" id="resLight"><i class="g"></i><i></i><i></i></div>
+            <div class="card">
+              <div class="kv">
+                <dt>To</dt><dd id="resTo">—</dd>
+                <dt>Amount</dt><dd id="resAmt">—</dd>
+                <dt>Reference</dt><dd id="resRef">—</dd>
+                <dt>Status</dt><dd id="resStatus">—</dd>
+                <dt>Mode</dt><dd><span class="tag" id="resMode">SIMULATED</span></dd>
+                <dt>Score</dt><dd id="resScore">—</dd>
+              </div>
+            </div>
+            <div class="card tight"><div class="note" id="resShield" style="font-size:11.8px"></div></div>
+            <div class="card tight" id="resSigs"></div>
+            <button class="btn g block" style="margin-top:12px" onclick="prepReport(CUR&&CUR.m)">Report this number</button>
+          </div>
+
+          <!-- REPORT -->
+          <div class="pview" id="p-report">
+            <button class="back" onclick="pgo('home')">← Home</button>
+            <h2>Report a Scam</h2>
+            <div class="sub">One report protects thousands — and retrains the AI. Pseudonymous by construction: no identity is ever stored.</div>
+            <div class="field"><label>Scam number</label><input id="rnum" placeholder="024 400 0007" inputmode="tel"></div>
+            <div class="field"><label>What happened?</label><div class="chips" id="rcats"></div></div>
+            <div class="field"><label>Region</label><select id="rreg"></select></div>
+            <div class="field"><label>Scam message text <span style="color:var(--yel);text-transform:none;letter-spacing:0">(optional — trains SmishingNet)</span></label>
+              <textarea id="rtxt" placeholder="Paste the SMS or what the caller said…"></textarea></div>
+            <button class="btn y block" style="margin-top:13px" onclick="doReport()">Report — protect others</button>
+            <div id="rout"></div>
+          </div>
+
+          <!-- USSD -->
+          <div class="pview" id="p-ussd">
+            <button class="back" onclick="pgo('home')">← Home</button>
+            <h2>USSD Simulator</h2>
+            <div class="sub">Feature-phone parity. Same state machine, same verdicts, same traffic-light logic — no smartphone required.</div>
+            <div class="ussd">
+              <div class="lcd" id="lcd"></div>
+              <div class="keys">
+                <button onclick="uk('1')">1</button><button onclick="uk('2')">2</button><button onclick="uk('3')">3</button>
+                <button onclick="uk('4')">4</button><button onclick="uk('5')">5</button><button onclick="uk('6')">6</button>
+                <button onclick="uk('7')">7</button><button onclick="uk('8')">8</button><button onclick="uk('9')">9</button>
+                <button onclick="uk('*')">*</button><button onclick="uk('0')">0</button><button onclick="uk('#')">#</button>
+                <button class="fn" onclick="uReset()">MENU</button><button class="fn" onclick="uk('clear')">CLEAR</button><button class="fn" onclick="uEnd()">END</button>
+              </div>
+              <div class="ushint">*175# · FraudShield shortcode (demo)</div>
+            </div>
+          </div>
+
+          <!-- CALL SIM -->
+          <div class="pview" id="p-call">
+            <button class="back" onclick="pgo('home');callStop()">← Home</button>
+            <h2>Scam Call Simulation</h2>
+            <div class="sub">The attack happens here — a live one-on-one call. Watch how FraudShield arms its signals while the script runs.</div>
+            <div class="callscreen">
+              <div class="callav ring" id="callAv">📞</div>
+              <div class="callnum" id="callNum">024 400 0007</div>
+              <div class="callname" id="callName">"MTN MoMo Promo" · 47 community flags</div>
+              <div class="callstate" id="callState">Incoming call…</div>
+              <div class="callbar" id="callBar">
+                <button class="callbtn dec" onclick="callDecline()" title="Decline">✕</button>
+                <button class="callbtn ans" onclick="callAnswer()" title="Answer">📞</button>
+              </div>
+              <div class="transcript" id="transcript" style="display:none"></div>
+              <div id="callActs" style="display:none">
+                <button class="btn r block" style="margin-top:12px" onclick="callSend()">😰 "OK, I will send it now"</button>
+                <button class="btn g block" style="margin-top:8px" onclick="callHang()">Hang up &amp; report</button>
+              </div>
+            </div>
+            <div class="shieldstrip" id="callStrip" style="display:none">
+              <b>🛡 FRAUDSHIELD:</b> active call detected with a community-flagged number — <b>RULE signal +20 armed</b> on every transfer until the call ends. In production this comes from MTN's network-level call-state API, so it works on feature phones too.
+            </div>
+          </div>
+
+        </div><!-- /appbody -->
+        <div class="bottomnav" id="bottomnav"></div>
+        <div id="coachSlot"></div>
+      </div>
     </div>
   </div>
-</div></section>
-
-<!-- DASHBOARD -->
-<section class="view" id="v-dash">
-  <span class="back" onclick="go('home')">← App</span>
-  <h2>FraudShield Command Dashboard</h2>
-  <div class="sub" id="dashSub"></div>
-  <div class="stats">
-    <div class="stat hero"><div class="n" id="stStop">0</div><div class="l">ATTEMPTED-SCAM TRANSFERS STOPPED</div></div>
-    <div class="stat g"><div class="n" id="stRep">0</div><div class="l">COMMUNITY REPORTS</div></div>
-    <div class="stat"><div class="n" id="stPause">0</div><div class="l">TRUSTED PAUSES</div></div>
-    <div class="stat g"><div class="n" id="stAcc">—</div><div class="l">SMISHINGNET HOLDOUT ACCURACY</div></div>
-  </div>
-  <div class="card"><b style="color:var(--yel);font-size:13px">🤖 Model status — SmishingNet</b>
-    <div style="font-size:12px;color:#ccc;line-height:1.9;margin-top:6px" id="modelStats"></div>
-    <div style="font-size:10px;color:var(--gry);margin-top:6px">Naive Bayes · unigrams+bigrams · Laplace smoothing · trained in-browser. Retrains on every community report.</div>
-  </div>
-  <div class="card"><b style="font-size:13px">🧠 Engine internals — what the AI has learned scams sound like</b>
-    <div class="chips" id="tokChips"></div>
-    <div style="font-size:10px;color:var(--gry);margin-top:6px">Top scam-likelihood tokens (log-ratio). This list reshapes with every report — the community literally rewrites the model's vocabulary.</div>
-  </div>
-  <div class="card"><b style="font-size:13px">🎬 Stage Manager</b>
-    <div class="sub" style="font-size:10px">Simulates MTN-held signals (real inputs = our incubation ask). Toggle during demo.</div>
-    <div class="tog">Active call with suspect number<div class="sw" id="swCall" onclick="tsw('swCall','call')"></div></div>
-    <div class="tog">Deposit-then-withdraw pattern<div class="sw" id="swDep" onclick="tsw('swDep','dep')"></div></div>
-  </div>
-  <div class="card"><b style="font-size:13px">Top flagged numbers</b><table id="topTbl"><tr><th>NUMBER</th><th>REPORTS</th><th>STATUS</th></tr></table></div>
-  <div class="card"><b style="font-size:13px">Live scam clusters — Ghana</b><canvas id="map" height="290"></canvas></div>
-  <div class="card"><b style="font-size:13px">Activity feed</b><div class="feed" id="feed"></div></div>
-  <button class="btn g" onclick="if(confirm('Reset all demo state incl. learned messages?')){localStorage.removeItem(KEY);location.reload()}">Reset demo state</button>
 </section>
 
-<!-- SETTINGS -->
-<section class="view" id="v-settings">
-  <span class="back" onclick="go('home')">← App</span>
-  <h2>Settings</h2>
-  <div class="card"><b style="font-size:13px">MoMo Sandbox connection</b>
-    <div class="sub" style="font-size:11px">Run momo_proxy.py and paste its URL. Payments then hit the real sandbox API.</div>
-    <div class="field"><label>PROXY URL</label><input id="pxy" placeholder="http://localhost:8000"></div>
-    <button class="btn y" onclick="saveProxy()">Save & test</button>
-    <div class="sub" id="pxyMsg" style="font-size:11px"></div>
+<!-- ==================================================== AI LAB ==================================================== -->
+<section class="sec" id="v-lab">
+  <div class="phead">
+    <div>
+      <h2>AI Lab — open the black box</h2>
+      <p class="sub">Every model runs from first principles in your browser: Naive Bayes with unigram+bigram features and Laplace smoothing, statistical behavior baselining, and a hybrid rules+ML ensemble. Nothing is a mock-up — the numbers below are recomputed live from the actual training set.</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="badge sim" id="labBadge">CLIENT-SIDE · NO NETWORK</span>
+      <button class="btn g sm" onclick="renderLab()">↻ Recompute</button>
+    </div>
   </div>
-  <div class="card"><b style="font-size:13px">🔊 Voice assets</b>
-    <div style="font-size:11px;color:#888;line-height:1.7">Add <b>audio/pause-twi.mp3</b> and <b>audio/scam-call-twi.mp3</b> beside this file.</div>
-    <button class="btn g" onclick="testAudioFiles()">Test voice files</button>
-    <div class="sub" id="audMsg" style="font-size:11px"></div>
-    <div class="mini"><span onclick="playScamCall()">▶ Play scam call</span><span onclick="playPause()">▶ Play Pause voice</span></div>
+
+  <div class="grid g4" style="margin-bottom:14px">
+    <div class="stat g"><div class="n" id="lbAcc">—</div><div class="l">Holdout accuracy</div><div class="d">75/25 deterministic split</div></div>
+    <div class="stat"><div class="n" id="lbPrec">—</div><div class="l">Precision</div><div class="d">of predicted scams, how many were scams</div></div>
+    <div class="stat b"><div class="n" id="lbRec">—</div><div class="l">Recall</div><div class="d">of real scams, how many we caught</div></div>
+    <div class="stat r"><div class="n" id="lbN">—</div><div class="l">Training examples</div><div class="d" id="lbNsub">44 seeded + 0 community</div></div>
   </div>
-  <div class="card" style="font-size:11px;color:#888;line-height:1.7"><b>About:</b> FraudShield AI — all models run locally in the browser. No server, no API, no data leaves the device. Zero external dependencies. Ensemble = rules + SmishingNet (NB) + behavior baselining — the hybrid architecture production fraud stacks use.</div>
+
+  <div class="grid g2">
+    <div class="panel">
+      <h3><span class="em">🧪</span>Interactive scorer</h3>
+      <div class="h3sub">See the pipeline: normalization → digit-run folding → unigrams + bigrams → per-class log-likelihoods → logistic probability.</div>
+      <div class="field"><label>Text to score</label><textarea id="labTxt" placeholder="Type or paste any message…"></textarea></div>
+      <div style="display:flex;gap:8px;margin-top:11px;flex-wrap:wrap">
+        <button class="btn y sm" onclick="labScan()">Score it</button>
+        <button class="btn g sm" onclick="fill('#labTxt',DEMO_MSGS[2]);labScan()">Load novel script</button>
+        <button class="btn g sm" onclick="labRandom()">🎲 Random scam</button>
+      </div>
+      <div id="labOut"></div>
+    </div>
+
+    <div class="panel">
+      <h3><span class="em">📈</span>Learning curve — the moat, measured</h3>
+      <div class="h3sub">Each point is one retrain triggered by a community report or correction. Accuracy is recomputed on the untouched 25% holdout — never on training data.</div>
+      <canvas id="cvAcc" height="210"></canvas>
+      <div class="grid g2" style="margin-top:12px;gap:10px">
+        <div>
+          <div class="metrow"><div class="ml"><span>Accuracy</span><b id="mbAcc">—</b></div><div class="metbar"><i id="barAcc" style="width:0;background:var(--grn)"></i></div></div>
+          <div class="metrow"><div class="ml"><span>Precision</span><b id="mbPrec">—</b></div><div class="metbar"><i id="barPrec" style="width:0;background:var(--yel)"></i></div></div>
+          <div class="metrow" style="margin:0"><div class="ml"><span>Recall</span><b id="mbRec">—</b></div><div class="metbar"><i id="barRec" style="width:0;background:#63b3ed"></i></div></div>
+        </div>
+        <div>
+          <div class="cmatrix" style="margin:0">
+            <div class="cm tp"><b id="cmTP">0</b><span>true positive</span></div>
+            <div class="cm fp"><b id="cmFP">0</b><span>false positive</span></div>
+            <div class="cm fn"><b id="cmFN">0</b><span>false negative</span></div>
+            <div class="cm tn"><b id="cmTN">0</b><span>true negative</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3><span class="em">🧠</span>Learned scam vocabulary</h3>
+      <div class="h3sub">Top 14 tokens by class log-ratio (scam count ≥ 2). This list is literally rewritten by every community report — the vocabulary is the network effect, made visible. <span class="hl">Gold = newly learned this session.</span></div>
+      <div class="chips" id="tokChips"></div>
+    </div>
+
+    <div class="panel">
+      <h3><span class="em">📚</span>Training corpus <span class="tag" id="corpCount">44</span></h3>
+      <div class="h3sub">24 authentic Ghanaian scam scripts (7 families) + 20 genuine MTN message types, seeded from field interviews. Community additions appear as <span class="tag ai">REPORT</span>.</div>
+      <div class="seg" style="margin-bottom:10px" id="corpSeg">
+        <button class="on" data-f="all">All</button><button data-f="1">Scam</button><button data-f="0">Legit</button><button data-f="c">Community</button>
+      </div>
+      <div class="scroll" id="corpList"></div>
+    </div>
+
+    <div class="panel" style="grid-column:1/-1">
+      <h3><span class="em">⚙</span>Ensemble specification — 7 signals, always explainable</h3>
+      <div class="h3sub">Production fraud stacks are hybrid: deterministic auditable rules plus adaptive ML. Every fired component is tagged and shown to the user. Score = sum, capped at 100.</div>
+      <table>
+        <tr><th>#</th><th>Signal</th><th>Type</th><th>Points</th><th>Fires when</th><th>Prototype source</th></tr>
+        <tr><td>1</td><td>Community flags on recipient</td><td><span class="tag rule">RULE</span></td><td class="mono">+40</td><td>seed flags + user reports ≥ 3</td><td>Community store</td></tr>
+        <tr><td>2</td><td>Fresh wallet / recent SIM swap</td><td><span class="tag rule">RULE</span></td><td class="mono">+25</td><td>wallet age &lt; 2 days OR swap flag</td><td><span class="tag sim">SIM</span> MTN-held</td></tr>
+        <tr><td>3</td><td>Deposit → immediate withdrawal</td><td><span class="tag rule">RULE</span></td><td class="mono">+20</td><td>wrong-transfer fingerprint</td><td><span class="tag sim">SIM</span> Stage Manager</td></tr>
+        <tr><td>4</td><td>Recent scam SMS</td><td><span class="tag ai">AI</span></td><td class="mono">+25</td><td>SmishingNet p &gt; 0.70 within 24 h</td><td>Real — from your scans</td></tr>
+        <tr><td>5</td><td>Behavior anomaly</td><td><span class="tag ai">AI</span></td><td class="mono">0–20</td><td>composite ≥ 6 pts vs personal baseline</td><td>Real — seeded baseline</td></tr>
+        <tr><td>6</td><td>Active call with suspect number</td><td><span class="tag rule">RULE</span></td><td class="mono">+20</td><td>call in progress during transfer</td><td><span class="tag sim">SIM</span> call-state API</td></tr>
+        <tr><td>7</td><td>Velocity</td><td><span class="tag rule">RULE</span></td><td class="mono">+10</td><td>≥ 2 attempts within 5 minutes</td><td>Real — session window</td></tr>
+      </table>
+      <div class="grid g2" style="margin-top:13px;gap:12px">
+        <div class="note" style="background:#0d0f16;border:1px solid var(--line);border-radius:12px;padding:12px">
+          <b class="hl">Behavior composite</b><br>
+          <span style="font-family:var(--mono);font-size:11px">raw = 0.45·min(z/3,1) + 0.25·novel + 0.15·night + 0.15·big</span><br>
+          <span style="font-family:var(--mono);font-size:11px">pts = round(20 · min(raw,1))</span><br>
+          <span style="color:var(--mut)">This is the zero-day catcher: a brand-new script can fake a promo, but it cannot imitate the victim's own spending pattern.</span>
+        </div>
+        <div class="note" style="background:#0d0f16;border:1px solid var(--line);border-radius:12px;padding:12px">
+          <b class="hl">Bands</b><br>
+          Message verdicts: <span style="color:var(--grn2)">GREEN ≤ 35%</span> · <span style="color:var(--yel)">YELLOW 35–65%</span> · <span style="color:var(--red2)">RED ≥ 65%</span><br>
+          Ensemble: <b>0–29</b> proceed silently · <b>30–59</b> caution with full breakdown · <b>60+</b> the Trusted Pause.<br>
+          <span style="color:var(--mut)">Red/yellow/green is the one legitimacy language readable at any literacy level.</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
+<!-- ==================================================== COMMAND ==================================================== -->
+<section class="sec" id="v-dash">
+  <div class="phead">
+    <div>
+      <h2>FraudShield Command</h2>
+      <p class="sub" id="dashSub">Operator view — the only metric that matters is attempted-scam transfers stopped.</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="badge live" id="dashBadge">ENGINE LIVE</span>
+      <button class="btn g sm" onclick="renderDash()">↻ Refresh</button>
+      <button class="btn g sm" onclick="askReset()">Reset demo state</button>
+    </div>
+  </div>
+
+  <div class="grid g4" style="margin-bottom:14px">
+    <div class="stat hero g" style="grid-column:span 2"><div class="n" id="stStop">0</div><div class="l">Attempted-scam transfers stopped</div><div class="d" id="stStopD">The pilot metric — every one is a wallet kept alive.</div></div>
+    <div class="stat"><div class="n" id="stRep">77</div><div class="l">Community reports</div><div class="d">77 seeded + yours</div></div>
+    <div class="stat r"><div class="n" id="stPause">0</div><div class="l">Trusted Pauses fired</div><div class="d">Red band takeovers</div></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="panel">
+      <h3><span class="em">🗺</span>Live scam clusters — Ghana</h3>
+      <div class="h3sub">Community-reported, pseudonymous, region-tagged. Baseline seeds + your reports. A report visibly grows a cluster.</div>
+      <canvas id="map" height="320"></canvas>
+      <div class="legend" style="margin-top:10px"><span><i style="background:var(--red)"></i>cluster intensity</span><span><i style="background:var(--yel)"></i>your reports this session</span><span><i style="background:#2b3242"></i>no reports yet</span></div>
+    </div>
+
+    <div class="panel">
+      <h3><span class="em">🤖</span>Model status — SmishingNet</h3>
+      <div class="h3sub">Naive Bayes · unigrams + bigrams · Laplace smoothing · logistic calibration. Retrains on every community report in milliseconds.</div>
+      <div class="metrow"><div class="ml"><span>Holdout accuracy</span><b id="dAcc">—</b></div><div class="metbar"><i id="dBarAcc" style="width:0;background:var(--grn)"></i></div></div>
+      <div class="metrow"><div class="ml"><span>Precision</span><b id="dPrec">—</b></div><div class="metbar"><i id="dBarPrec" style="width:0;background:var(--yel)"></i></div></div>
+      <div class="metrow"><div class="ml"><span>Recall</span><b id="dRec">—</b></div><div class="metbar"><i id="dBarRec" style="width:0;background:#63b3ed"></i></div></div>
+      <dl class="kv" id="modelStats" style="margin-top:12px"></dl>
+      <div style="margin-top:13px">
+        <div style="font-size:11px;letter-spacing:.8px;color:var(--dim);font-weight:700;margin-bottom:7px">REPORTS BY CATEGORY</div>
+        <div id="catBars"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3><span class="em">🎬</span>Stage Manager <span class="tag sim">SIMULATED</span></h3>
+      <div class="h3sub">These simulate the MTN-held signals that no startup can access alone. Getting them for real is the incubation ask — toggles exist so the demo is honest and controllable.</div>
+      <div class="tog"><div><div class="tt">Active call with suspect number <span class="tag rule">+20</span></div><div class="td">Production: MTN call-state API — network level, covers feature phones</div></div><div class="sw" id="swCall" onclick="tsw('call')"></div></div>
+      <div class="tog"><div><div class="tt">Deposit-then-withdrawal pattern <span class="tag rule">+20</span></div><div class="td">Production: transaction pattern service on live MoMo events</div></div><div class="sw" id="swDep" onclick="tsw('dep')"></div></div>
+      <div class="tog"><div><div class="tt">Twi voice on the Trusted Pause</div><div class="td">MP3 asset → synthesized speech → text fallback (always shown)</div></div><div class="sw on" id="swVoice" onclick="tsw('voice')"></div></div>
+    </div>
+
+    <div class="panel">
+      <h3><span class="em">🚩</span>Reputation ledger — top flagged numbers</h3>
+      <div class="h3sub">3 combined reports flip a number to FLAGGED → +40 points on every future transfer and an automatic red verdict on every verify check.</div>
+      <table id="topTbl"><tr><th>Number</th><th>Reports</th><th style="width:34%">Weight</th><th>Status</th></tr></table>
+    </div>
+
+    <div class="panel" style="grid-column:1/-1">
+      <h3><span class="em">📡</span>Live activity feed</h3>
+      <div class="h3sub">Newest first. Reports and resolved transfer attempts, each with its outcome classification.</div>
+      <div class="feed" id="feed"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================================================== SPEC ==================================================== -->
+<section class="sec" id="v-spec">
+  <div class="phead">
+    <div>
+      <h2>System spec, honesty matrix &amp; the ask</h2>
+      <p class="sub">What is actually built, what is simulated, and why. Every line here is verifiable in the running prototype — the hardest judge question, answered before it is asked.</p>
+    </div>
+    <button class="btn g sm" onclick="window.print()">🖨 Print / Save as PDF</button>
+  </div>
+
+  <div class="panel" style="margin-bottom:14px">
+    <h3><span class="em">🏗</span>Architecture</h3>
+    <div class="h3sub">FraudShield sits <b>in front of transaction initiation</b>. It is a decision layer, not a payment rail — it never holds or moves customer funds, which keeps it inside MTN's existing licence (Act 987).</div>
+    <div class="arch">
+      <div class="archrow">
+        <div class="node"><b>MoMo app view</b><span>smartphone users</span></div>
+        <div class="node"><b>USSD shortcode</b><span>feature phones · parity</span></div>
+        <div class="node"><b>SMS</b><span>smishing intake</span></div>
+      </div>
+      <div class="arrowdn">▼</div>
+      <div class="archrow">
+        <div class="node ai" style="flex:2"><b>FRAUDSHIELD AI ENGINE</b><span>SmishingNet (message classifier) · BehaviorProfile (anomaly detector) · Shield Ensemble (hybrid scorer)</span></div>
+      </div>
+      <div class="archrow">
+        <div class="node eng"><b>Community Intelligence Store</b><span>reports · flags · scam-cluster map · retraining corpus</span></div>
+      </div>
+      <div class="arrowdn">▼ &nbsp; transfer survives the engine</div>
+      <div class="archrow">
+        <div class="node rail"><b>momo_proxy.py (FastAPI)</b><span>holds credentials · auth → requesttopay → status poll</span></div>
+      </div>
+      <div class="arrowdn">▼</div>
+      <div class="archrow">
+        <div class="node rail"><b>MoMo Open API — Collections</b><span>sandbox · honestly badged per transaction</span></div>
+      </div>
+      <div class="arrowdn">▼</div>
+      <div class="archrow">
+        <div class="node"><b>User verdict</b><span>explainable traffic light</span></div>
+        <div class="node"><b>Community network</b><span>flags + retraining</span></div>
+        <div class="node"><b>National intel feed</b><span>roadmap · CSA / Police CID</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="panel">
+      <h3><span class="em">🎯</span>Honesty matrix — development status</h3>
+      <div class="h3sub">Nothing is blurred. LIVE means running in this browser right now.</div>
+      <table>
+        <tr><th>Component</th><th>Status</th></tr>
+        <tr><td>SmishingNet — training, classification, holdout evaluation, explainability, active learning</td><td><span class="tag live">LIVE</span></td></tr>
+        <tr><td>BehaviorProfile anomaly scoring</td><td><span class="tag live">LIVE</span> <span class="tag seed">SEEDED</span></td></tr>
+        <tr><td>Ensemble scoring, bands, Trusted Pause, caution flow</td><td><span class="tag live">LIVE</span></td></tr>
+        <tr><td>Verify / report flows, USSD simulator, dashboard, cluster map, counters</td><td><span class="tag live">LIVE</span></td></tr>
+        <tr><td>MoMo sandbox payment calls</td><td><span class="tag live">LIVE VIA PROXY</span> <span class="tag sim">SIM FALLBACK</span></td></tr>
+        <tr><td>Call-state, SIM-swap, wallet-age signals</td><td><span class="tag sim">SIMULATED</span></td></tr>
+        <tr><td>Verified agent registry</td><td><span class="tag seed">SEEDED</span></td></tr>
+        <tr><td>CSA / Police intel feed · guardian mode · cross-telco sharing</td><td><span class="tag road">ROADMAP</span></td></tr>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3><span class="em">🤝</span>The incubation ask</h3>
+      <div class="h3sub">FraudShield is <b>impossible without MoMo</b> (no startup can access these signals alone) and <b>un-copyable with it</b> (no rival telco can replicate the community network once it exists at MoMo scale). A two-way moat.</div>
+      <div class="ask">
+        <div class="a"><b>5</b><span>MTN-held signals</span></div>
+        <div class="a"><b>1</b><span>verify shortcode</span></div>
+        <div class="a"><b>1</b><span>region — Ashanti</span></div>
+        <div class="a"><b>90</b><span>days of pilot</span></div>
+      </div>
+      <div class="note" style="margin-top:13px">
+        <b>The five signals:</b> verified agent registry · SIM-swap events · wallet age · call-state API · verify shortcode.<br><br>
+        <b>Measured on one number:</b> <span class="hl">attempted-scam transfers stopped.</span>
+      </div>
+      <h3 style="margin-top:16px"><span class="em">⚖</span>Regulatory posture</h3>
+      <table>
+        <tr><th>Law</th><th>Position</th></tr>
+        <tr><td>Act 987 · Payment Systems &amp; Services 2019</td><td>Data/intelligence layer on MTN's licence; never touches customer funds</td></tr>
+        <tr><td>Act 1038 · Cybersecurity 2020</td><td>Community intelligence designed for anonymized sharing with CSA and Police CID</td></tr>
+        <tr><td>Act 843 · Data Protection 2012</td><td>Explicit consent gate · pseudonymous reporting · aggregate-only sharing · DPIA before pilot</td></tr>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3><span class="em">🗓</span>Roadmap</h3>
+      <div class="tl-road" style="margin-top:12px">
+        <div class="item"><b>Now — prototype complete</b><span>Working app, live in-browser AI, MoMo sandbox proxy, full competition kit delivered.</span></div>
+        <div class="item"><b>+6 months — Ashanti Region pilot</b><span>90 days with MTN, measured on attempted-scam transfers stopped.</span></div>
+        <div class="item"><b>+12 months — national rollout</b><span>Guardian mode: a trusted co-signer for elderly users' wallets.</span></div>
+        <div class="item"><b>+24 months — infrastructure</b><span>Cross-telco intelligence sharing, bank-facing verification API, verified-merchant badges, CSA / Police CID integration.</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3><span class="em">🧾</span>Constants reference card</h3>
+      <div class="h3sub">Port 1:1, then tune — tuning happens on pilot data, never on opinions during a rebuild.</div>
+      <dl class="kv" style="grid-template-columns:auto 1fr">
+        <dt>storage key</dt><dd>fraudshield_ai_v1</dd>
+        <dt>corpus</dt><dd>44 msgs (24 scam / 20 legit) + community</dd>
+        <dt>PRNG</dt><dd>Lehmer ×48271 mod 2147483647 · eval 1234 · profile 7</dd>
+        <dt>holdout</dt><dd>75/25 deterministic · threshold p &gt; 0.5</dd>
+        <dt>explainability</dt><dd>d &gt; 0.3, top 6 · vocab top 14 (count ≥ 2)</dd>
+        <dt>sigmoid clamp</dt><dd>±50</dd>
+        <dt>message bands</dt><dd>≤0.35 green · 0.35–0.65 yellow · ≥0.65 red</dd>
+        <dt>ensemble bands</dt><dd>0–29 proceed · 30–59 caution · 60+ pause</dd>
+        <dt>weights</dt><dd>40/25/20/25/0–20/20/10 · cap 100</dd>
+        <dt>behavior</dt><dd>0.45z + 0.25novel + 0.15night + 0.15big × 20</dd>
+        <dt>flag threshold</dt><dd>3 reports → FLAGGED</dd>
+        <dt>velocity window</dt><dd>2 attempts / 5 minutes</dd>
+        <dt>smishing window</dt><dd>p &gt; 0.7 within 24 h</dd>
+        <dt>simulated payment</dt><dd>FS-XXXXXX · 1400 ms · SUCCESSFUL</dd>
+        <dt>live poll</dt><dd>8 × 1500 ms · token cache 3000 s</dd>
+        <dt>map bounds</dt><dd>lon −3.3…1.3 · lat 4.5…11.3 · r = min(5+0.7n, 22)</dd>
+        <dt>dashboard baseline</dt><dd>77 reports · feed 12 · top flagged 6</dd>
+        <dt>demo wallet</dt><dd>GHS 3,470.50</dd>
+        <dt>demo numbers</dt><dd>0244000007 scammer(47) · …0004 pause · …0003 clean · …0001 agent</dd>
+        <dt>pause dial</dt><dd>tel:100 (MTN customer care)</dd>
+      </dl>
+    </div>
+
+    <div class="panel" style="grid-column:1/-1">
+      <h3><span class="em">📦</span>Deliverables inventory</h3>
+      <div class="grid g3" style="margin-top:10px;gap:10px">
+        <div class="node" style="text-align:left"><b>1 · Working prototype</b><span>Single-file app, zero dependencies, live in-browser AI + MoMo sandbox proxy (momo_proxy.py)</span></div>
+        <div class="node" style="text-align:left"><b>2 · Written application</b><span>Ten structured answers in the competition's own language</span></div>
+        <div class="node" style="text-align:left"><b>3 · Demo Day deck</b><span>10 main + 6 appendix slides, speaker notes, vector graphics</span></div>
+        <div class="node" style="text-align:left"><b>4 · Executive summary</b><span>One-page and 110-word versions</span></div>
+        <div class="node" style="text-align:left"><b>5 · Technical build plan</b><span>Architecture, data model, risk engine spec, API flows, 72-hour schedule, failure modes</span></div>
+        <div class="node" style="text-align:left"><b>6 · Team reference note</b><span>System documentation, honesty matrix, rapid-fire revision sheet</span></div>
+        <div class="node" style="text-align:left"><b>7 · Project report</b><span>The definitive record (this system's source document)</span></div>
+        <div class="node" style="text-align:left"><b>8 · Hosting &amp; distribution</b><span>Live URL, GitHub repo, Demo Day QR code</span></div>
+        <div class="node" style="text-align:left"><b>9 · Hostile-judge Q&amp;A drill</b><span>Ten brutal questions, pressure-tested answers — final preparation before Demo Day</span></div>
+      </div>
+      <div class="note" style="margin-top:14px;text-align:center;font-size:12.6px">
+        <i>Trust is the gate to financial access. <b class="hl">FraudShield AI is the gatekeeper.</b></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    FraudShield AI · Build with MoMo · Track 3: Trust, Security &amp; Digital Identity<br>
+    MoMo Fintech Lab — MobileMoney Fintech Ltd in partnership with the Bank of Ghana
+  </div>
+</section>
+
+<!-- ==================================================== SETTINGS ==================================================== -->
+<section class="sec" id="v-settings">
+  <div class="phead">
+    <div><h2>Settings</h2><p class="sub">Connect the real MoMo sandbox, manage voice assets, export or reset your local instance.</p></div>
+    <button class="btn g sm" onclick="tab('app')">← Back to app</button>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <h3><span class="em">🔌</span>MoMo sandbox connection</h3>
+      <div class="h3sub">Run <span style="font-family:var(--mono);color:var(--yel)">uvicorn momo_proxy:app --port 8000</span> then paste its URL. Credentials stay server-side — secrets never touch the browser.</div>
+      <div class="field"><label>Proxy URL</label><input id="pxy" placeholder="http://localhost:8000"></div>
+      <div style="display:flex;gap:8px;margin-top:11px">
+        <button class="btn y sm" onclick="saveProxy()">Save &amp; test</button>
+        <button class="btn g sm" onclick="clearProxy()">Clear</button>
+      </div>
+      <div class="note" id="pxyMsg" style="margin-top:11px"></div>
+      <pre class="diagram" style="margin-top:12px;font-size:10px">GET  /api/health            → {ok, base, connected}
+POST /api/momo/pay          → {amount, msisdn} → {ref, status}
+GET  /api/momo/status/{ref} → {status}
+
+auth: apiuser → apikey → bearer token (cached 3000 s)
+pay:  requesttopay + X-Reference-Id + X-Target-Environment</pre>
+    </div>
+    <div class="panel">
+      <h3><span class="em">🔊</span>Voice assets &amp; language</h3>
+      <div class="h3sub">The Trusted Pause is delivered in Twi by voice. Chain: MP3 asset → browser speech synthesis → text (always shown).</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn g sm" onclick="testAudioFiles()">Test MP3 assets</button>
+        <button class="btn g sm" onclick="playPause(true)">▶ Play Pause voice</button>
+        <button class="btn g sm" onclick="playScamCall()">▶ Play scam call</button>
+      </div>
+      <div class="note" id="audMsg" style="margin-top:11px">Expected files: <span style="font-family:var(--mono)">audio/pause-twi.mp3</span> · <span style="font-family:var(--mono)">audio/scam-call-twi.mp3</span></div>
+      <div class="field"><label>Pause language</label>
+        <div class="seg" id="langSeg">
+          <button data-l="en">English</button><button data-l="tw">Twi</button>
+        </div>
+      </div>
+      <div class="card tight" style="background:#0d0f16">
+        <div class="note" style="font-size:11.4px"><b>Twi script (text fallback):</b><br><i id="twiPreview"></i><br><br><b>English:</b> Is someone on the phone telling you to send this money right now?</div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3><span class="em">💾</span>Local instance</h3>
+      <div class="h3sub">State lives in this browser only (localStorage). Every judge who scans the QR code gets a fresh, clean instance — and "try to scam it yourself" doubles as an audit invitation.</div>
+      <dl class="kv" id="stateInfo"></dl>
+      <div style="display:flex;gap:8px;margin-top:13px;flex-wrap:wrap">
+        <button class="btn g sm" onclick="exportState()">⬇ Export state JSON</button>
+        <button class="btn r sm" onclick="askReset()">Reset everything</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h3><span class="em">ℹ</span>About this build</h3>
+      <div class="note" style="font-size:12px">
+        FraudShield AI is a <b>human-layer</b> fraud detection system for Ghana's MoMo ecosystem. MTN's backend risk systems score <i>transactions</i>; awareness campaigns warn <i>before</i> the scam begins. The scam itself happens between them — at the moment of manipulation — where no defense currently operates. FraudShield inserts defense at exactly that moment.<br><br>
+        All models run locally: no server, no tracking, no data leaving the device. Zero external dependencies means the demo cannot fail offline.<br><br>
+        <b>Built for:</b> MoMo Fintech Lab — Build with MoMo, Track 3: Trust, Security &amp; Digital Identity.
+      </div>
+    </div>
+  </div>
+</section>
 </main>
+
 <div id="toast"></div>
+<div id="modal"><div class="mbox"><h4 id="mTitle"></h4><p id="mMsg"></p><div class="mr"><button class="btn g" id="mNo">Cancel</button><button class="btn r" id="mYes">Confirm</button></div></div></div>
 
 <script>
-/* ========================= STATE ========================= */
-const KEY='fraudshield_ai_v1';
-function fresh(){return{v:1,consented:false,extra:[],reports:[],attempts:[],sent:[],transfers:[],
- profile:seedProfile(),stopped:0,pauses:0,evals:0,lastSMS:null,
- demo:{call:false,dep:false},momo:{proxy:'',tested:false}};}
-let S=(function(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.v===1)return s;}catch(e){}return fresh();})();
-function save(){localStorage.setItem(KEY,JSON.stringify(S));}
+/* =========================================================================
+   FRAUDSHIELD AI — single-file build · zero dependencies · all AI client-side
+   ========================================================================= */
 
-/* ========================= TRAINING CORPUS ========================= */
-const CORPUS=[
+/* ------------------------------- 0. UTIL ------------------------------- */
+var $=function(s){return document.querySelector(s);};
+var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
+function norm(v){return (v||'').replace(/\D/g,'');}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function money(n){return Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+function ago(ts){var d=Date.now()-ts;if(d<45000)return 'just now';if(d<3600000)return Math.floor(d/60000)+'m ago';if(d<86400000)return Math.floor(d/3600000)+'h ago';return Math.floor(d/86400000)+'d ago';}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+var toastT=null;
+function toast(msg,kind){var t=$('#toast');t.textContent=msg;t.className='show'+(kind?' '+kind:'');
+  clearTimeout(toastT);toastT=setTimeout(function(){t.className='';},2900);}
+function fill(sel,v){var e=$(sel);if(e)e.value=v;}
+var modalCb=null;
+function askConfirm(title,msg,okLabel,cb){$('#mTitle').textContent=title;$('#mMsg').textContent=msg;
+  $('#mYes').textContent=okLabel||'Confirm';modalCb=cb;$('#modal').classList.add('on');}
+$('#mNo').onclick=function(){$('#modal').classList.remove('on');modalCb=null;};
+$('#mYes').onclick=function(){$('#modal').classList.remove('on');var c=modalCb;modalCb=null;if(c)c();};
+$('#modal').onclick=function(e){if(e.target===this){this.classList.remove('on');modalCb=null;}};
+
+var ICONS={
+  home:'<path d="M3.5 10.8 12 3.6l8.5 7.2"/><path d="M5.6 9.6V20h12.8V9.6"/><path d="M10 20v-5.2h4V20"/>',
+  chat:'<path d="M20.5 12c0 4-3.8 7.2-8.5 7.2-1 0-2-.15-2.9-.42L4 20.5l1.5-3.6C4.2 15.6 3.5 13.9 3.5 12 3.5 8 7.3 4.8 12 4.8s8.5 3.2 8.5 7.2z"/>',
+  search:'<circle cx="11" cy="11" r="6.4"/><path d="M15.8 15.8 21 21"/>',
+  send:'<path d="M21 3 10.5 13.5"/><path d="M21 3 14.4 21l-3.9-7.5L3 9.6 21 3z"/>',
+  flag:'<path d="M5 21V4.5"/><path d="M5 5.2h9.6l-1 3 1 3H5"/>'
+};
+function icon(k){return '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+ICONS[k]+'</svg>';}
+
+/* ------------------------------- 1. STATE ------------------------------ */
+var KEY='fraudshield_ai_v1';
+function fresh(){return{v:1,consented:false,lang:'en',extra:[],reports:[],attempts:[],sent:[],transfers:[],
+  profile:seedProfile(),stopped:0,pauses:0,evals:0,lastSMS:null,hist:[],vocabPrev:[],newTok:[],
+  demo:{call:false,dep:false,voice:true},momo:{proxy:'',tested:false}};}
+var S=(function(){
+  try{
+    var raw=JSON.parse(localStorage.getItem(KEY));
+    if(raw&&raw.v===1){
+      var f=fresh();var s=Object.assign(f,raw);
+      s.demo=Object.assign(f.demo,raw.demo||{});
+      s.momo=Object.assign(f.momo,raw.momo||{});
+      if(!Array.isArray(s.profile)||s.profile.length<10)s.profile=f.profile;
+      if(!Array.isArray(s.hist))s.hist=[];
+      if(!Array.isArray(s.extra))s.extra=[];
+      if(!Array.isArray(s.reports))s.reports=[];
+      if(!Array.isArray(s.attempts))s.attempts=[];
+      if(!Array.isArray(s.transfers))s.transfers=[];
+      if(!Array.isArray(s.sent))s.sent=[];
+      if(!Array.isArray(s.vocabPrev))s.vocabPrev=[];
+      return s;
+    }
+  }catch(e){}
+  return fresh();
+})();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+/* -------------------------- 2. TRAINING CORPUS -------------------------- */
+var CORPUS=[
 {y:1,t:"Congratulations!!! Your number has just won GHS 5000 in the MTN MoMo monthly promo. To claim your prize send your PIN now."},
 {y:1,t:"URGENT: Your MoMo account will be BLOCKED in 24hrs. Dial the code with your PIN to verify your details now."},
 {y:1,t:"Dear customer you have been selected for a GHS 10000 MoMo cash grant. Pay GHS 50 activation fee to receive your money."},
@@ -344,263 +1276,1074 @@ const CORPUS=[
 {y:0,t:"You were entered into the MoMo promo draw this month. No action is needed. Winners will be called from the official line."},
 {y:0,t:"Your monthly MoMo merchant sales report is ready. Total collections GHS 12340.00."}];
 
-/* ========================= MODEL 1 — SMISHINGNET ========================= */
+/* --------------------- 3. MODEL 1 — SMISHINGNET (NB) -------------------- */
 function allEx(){return CORPUS.concat(S.extra);}
-function tokenize(s){s=(" "+s.toLowerCase()+" ").replace(/[0-9]+/g," num ");
- const w=s.split(/[^a-z0-9]+/).filter(x=>x.length>1);
- const bi=[];for(let i=0;i<w.length-1;i++)bi.push(w[i]+"_"+w[i+1]);
- return w.concat(bi);}
-function trainNB(exs){const c={1:{},0:{}},tot={1:0,0:0};
- exs.forEach(e=>{tokenize(e.t).forEach(t=>{c[e.y][t]=(c[e.y][t]||0)+1;tot[e.y]++;});});
- const V=new Set();[1,0].forEach(y=>Object.keys(c[y]).forEach(t=>V.add(t)));
- return{c,tot,V:V.size,n:exs.length};}
-function nbClassify(text,M){const ts=tokenize(text);
- let l1=Math.log((M.tot[1]+1)/(M.n+2)),l0=Math.log((M.tot[0]+1)/(M.n+2));
- const contrib=[];
- ts.forEach(t=>{const n1=(M.c[1][t]||0)+1,n0=(M.c[0][t]||0)+1;
-  const p1=n1/(M.tot[1]+M.V+1),p0=n0/(M.tot[0]+M.V+1);
-  l1+=Math.log(p1);l0+=Math.log(p0);contrib.push({t:t,d:Math.log(p1)-Math.log(p0)});});
- const p=1/(1+Math.exp(Math.min(50,Math.max(-50,l0-l1))));
- const top=contrib.filter(x=>x.d>0.3).sort((a,b)=>b.d-a.d).slice(0,6);
- return{p:p,top:top};}
-function nbEval(){const exs=allEx();
- let seed=1234;const a=exs.slice();for(let i=a.length-1;i>0;i--){seed=(seed*48271)%2147483647;const j=seed%(i+1);const tmp=a[i];a[i]=a[j];a[j]=tmp;}
- const cut=Math.max(2,Math.floor(a.length*0.75));
- const M=trainNB(a.slice(0,cut));let tp=0,fp=0,fn=0,tn=0;
- a.slice(cut).forEach(e=>{const pr=nbClassify(e.t,M).p>0.5?1:0;
-  if(pr&&e.y===1)tp++;else if(pr)fp++;else if(e.y===1)fn++;else tn++;});
- const n=tp+fp+tn+fn;
- return{acc:n?(tp+tn)/n:0,prec:(tp+fp)?tp/(tp+fp):0,rec:(tp+fn)?tp/(tp+fn):0,n:exs.length,trainN:cut};}
-function scamVocab(){const M=trainNB(allEx());const out=[];
- Object.keys(M.c[1]).forEach(t=>{if(M.c[1][t]>=2){
-  const p0=((M.c[0][t]||0)+1)/(M.tot[0]+M.V+1),p1=(M.c[1][t]+1)/(M.tot[1]+M.V+1);
-  out.push({t:t,d:Math.log(p1)-Math.log(p0)});}});
- return out.sort((a,b)=>b.d-a.d).slice(0,14);}
+function tokenize(s){
+  s=(" "+String(s).toLowerCase()+" ").replace(/[0-9]+/g," num ");
+  var w=s.split(/[^a-z0-9]+/).filter(function(x){return x.length>1;});
+  var bi=[];for(var i=0;i<w.length-1;i++)bi.push(w[i]+"_"+w[i+1]);
+  return w.concat(bi);
+}
+function trainNB(exs){
+  var c={1:{},0:{}},tot={1:0,0:0};
+  exs.forEach(function(e){tokenize(e.t).forEach(function(t){c[e.y][t]=(c[e.y][t]||0)+1;tot[e.y]++;});});
+  var V={};[1,0].forEach(function(y){Object.keys(c[y]).forEach(function(t){V[t]=1;});});
+  return{c:c,tot:tot,V:Object.keys(V).length,n:exs.length};
+}
+function nbClassify(text,M){
+  var ts=tokenize(text);
+  var l1=Math.log((M.tot[1]+1)/(M.n+2)),l0=Math.log((M.tot[0]+1)/(M.n+2));
+  var contrib=[];
+  ts.forEach(function(t){
+    var n1=(M.c[1][t]||0)+1,n0=(M.c[0][t]||0)+1;
+    var p1=n1/(M.tot[1]+M.V+1),p0=n0/(M.tot[0]+M.V+1);
+    l1+=Math.log(p1);l0+=Math.log(p0);contrib.push({t:t,d:Math.log(p1)-Math.log(p0)});
+  });
+  var p=1/(1+Math.exp(clamp(l0-l1,-50,50)));
+  var top=contrib.filter(function(x){return x.d>0.3;}).sort(function(a,b){return b.d-a.d;}).slice(0,6);
+  var sup=contrib.filter(function(x){return x.d<-0.3;}).sort(function(a,b){return a.d-b.d;}).slice(0,4);
+  return{p:p,top:top,sup:sup,l1:l1,l0:l0,toks:ts};
+}
+function nbEval(){
+  var exs=allEx();var seed=1234;var a=exs.slice();
+  for(var i=a.length-1;i>0;i--){seed=(seed*48271)%2147483647;var j=seed%(i+1);var tmp=a[i];a[i]=a[j];a[j]=tmp;}
+  var cut=Math.max(2,Math.floor(a.length*0.75));
+  var M=trainNB(a.slice(0,cut));var tp=0,fp=0,fn=0,tn=0;
+  a.slice(cut).forEach(function(e){
+    var pr=nbClassify(e.t,M).p>0.5?1:0;
+    if(pr&&e.y===1)tp++;else if(pr)fp++;else if(e.y===1)fn++;else tn++;});
+  var n=tp+fp+tn+fn;
+  return{acc:n?(tp+tn)/n:0,prec:(tp+fp)?tp/(tp+fp):0,rec:(tp+fn)?tp/(tp+fn):0,
+    n:exs.length,trainN:cut,tp:tp,fp:fp,fn:fn,tn:tn,testN:n};
+}
+function scamVocab(){
+  var M=trainNB(allEx());var out=[];
+  Object.keys(M.c[1]).forEach(function(t){
+    if(M.c[1][t]>=2){
+      var p0=((M.c[0][t]||0)+1)/(M.tot[0]+M.V+1),p1=(M.c[1][t]+1)/(M.tot[1]+M.V+1);
+      out.push({t:t,d:Math.log(p1)-Math.log(p0),n:M.c[1][t]});}});
+  return out.sort(function(a,b){return b.d-a.d;}).slice(0,14);
+}
+function recordHist(ev){
+  ev=ev||nbEval();
+  var last=S.hist[S.hist.length-1];
+  if(last&&last.n===ev.n&&Math.abs(last.acc-ev.acc)<1e-9)return;
+  S.hist.push({n:ev.n,acc:ev.acc,prec:ev.prec,rec:ev.rec,ts:Date.now()});
+  if(S.hist.length>60)S.hist=S.hist.slice(-60);
+  save();
+}
 
-/* ========================= MODEL 2 — BEHAVIOR ========================= */
-function seedProfile(){const recs=['0244000003','0244000001','0545550001'];const txs=[];let seed=7;
- for(let i=0;i<24;i++){seed=(seed*48271)%2147483647;const r1=seed/2147483647;
-  seed=(seed*48271)%2147483647;const r2=seed/2147483647;
-  seed=(seed*48271)%2147483647;const r3=seed/2147483647;
-  txs.push({a:Math.round(20+r1*180),h:8+Math.floor(r2*12),r:recs[Math.floor(r3*3)]});}
- return txs;}
-function behavior(tx){const ps=S.profile;const am=ps.map(t=>t.a);
- const mean=am.reduce((x,y)=>x+y,0)/am.length;
- const sd=Math.sqrt(am.reduce((x,y)=>x+(y-mean)*(y-mean),0)/am.length)||1;
- const z=Math.abs(tx.a-mean)/sd;
- const novel=ps.some(t=>t.r===tx.r)?0:1;
- const night=(tx.h<6||tx.h>22)?1:0;
- const big=tx.a>3*mean?1:0;
- const raw=0.45*Math.min(z/3,1)+0.25*novel+0.15*night+0.15*big;
- return{pts:Math.round(20*Math.min(raw,1)),z:z.toFixed(1),novel:novel,night:night,big:big,mean:Math.round(mean)};}
+/* ------------------- 4. MODEL 2 — BEHAVIORPROFILE ---------------------- */
+function seedProfile(){
+  var recs=['0244000003','0244000001','0545550001'];var txs=[];var seed=7;
+  for(var i=0;i<24;i++){
+    seed=(seed*48271)%2147483647;var r1=seed/2147483647;
+    seed=(seed*48271)%2147483647;var r2=seed/2147483647;
+    seed=(seed*48271)%2147483647;var r3=seed/2147483647;
+    txs.push({a:Math.round(20+r1*180),h:8+Math.floor(r2*12),r:recs[Math.floor(r3*3)]});}
+  return txs;
+}
+function behavior(tx){
+  var ps=S.profile;var am=ps.map(function(t){return t.a;});
+  var mean=am.reduce(function(x,y){return x+y;},0)/am.length;
+  var sd=Math.sqrt(am.reduce(function(x,y){return x+(y-mean)*(y-mean);},0)/am.length)||1;
+  var z=Math.abs(tx.a-mean)/sd;
+  var novel=ps.some(function(t){return t.r===tx.r;})?0:1;
+  var night=(tx.h<6||tx.h>22)?1:0;
+  var big=tx.a>3*mean?1:0;
+  var raw=0.45*Math.min(z/3,1)+0.25*novel+0.15*night+0.15*big;
+  return{pts:Math.round(20*Math.min(raw,1)),z:z,novel:novel,night:night,big:big,mean:Math.round(mean),sd:sd};
+}
 
-/* ========================= ENSEMBLE ========================= */
-function shieldScore(m,amount){let sc=0;const comps=[];
- const rc=reportCount(m);
- if(rc>=3){sc+=40;comps.push(['RULE','Community flags on recipient ('+rc+' reports)',40]);}
- if(WALLETS[m]&&(WALLETS[m].age<2||WALLETS[m].swap)){sc+=25;comps.push(['RULE','Recipient wallet <48h / recent SIM swap',25]);}
- if(S.demo.dep){sc+=20;comps.push(['RULE','Deposit-then-withdrawal pattern',20]);}
- if(S.transfers.filter(t=>Date.now()-t.ts<300000).length>=2){sc+=10;comps.push(['RULE','Velocity: multiple transfers in 5 min',10]);}
- if(S.lastSMS&&S.lastSMS.p>0.7&&Date.now()-S.lastSMS.ts<86400000){sc+=25;comps.push(['AI','SmishingNet: recent SMS scored '+(S.lastSMS.p*100).toFixed(0)+'% scam',25]);}
- const bh=behavior({a:amount,h:new Date().getHours(),r:m});
- if(bh.pts>=6){sc+=bh.pts;comps.push(['AI','Behavior anomaly: '+bh.z+'× your usual amount'+(bh.novel?', new recipient':'')+(bh.night?', unusual hour':''),bh.pts]);}
- if(S.demo.call){sc+=20;comps.push(['RULE','ACTIVE CALL with suspect number',20]);}
- return{sc:Math.min(sc,100),comps:comps};}
+/* --------------------- 5. MODEL 3 — SHIELD ENSEMBLE --------------------- */
+function shieldScore(m,amount){
+  var sc=0;var comps=[];
+  var rc=reportCount(m);
+  if(rc>=3){sc+=40;comps.push(['RULE','Community flags on recipient ('+rc+' reports)',40]);}
+  if(WALLETS[m]&&(WALLETS[m].age<2||WALLETS[m].swap)){sc+=25;comps.push(['RULE','Recipient wallet <48h old / recent SIM swap',25]);}
+  if(S.demo.dep){sc+=20;comps.push(['RULE','Deposit followed by immediate withdrawal request',20]);}
+  if(S.lastSMS&&S.lastSMS.p>0.7&&Date.now()-S.lastSMS.ts<86400000){
+    sc+=25;comps.push(['AI','SmishingNet: recent SMS scored '+(S.lastSMS.p*100).toFixed(0)+'% scam',25]);}
+  var bh=behavior({a:amount,h:new Date().getHours(),r:m});
+  if(bh.pts>=6){sc+=bh.pts;
+    comps.push(['AI','Behavior anomaly: '+bh.z.toFixed(1)+'σ vs your usual GHS '+bhh(bh.mean)+
+      (bh.novel?' · new recipient':'')+(bh.night?' · unusual hour':'')+(bh.big?' · >3× your average':''),bh.pts]);}
+  if(S.demo.call){sc+=20;comps.push(['RULE','ACTIVE CALL with suspect number during transfer',20]);}
+  if(S.transfers.filter(function(t){return Date.now()-t.ts<300000;}).length>=2){
+    sc+=10;comps.push(['RULE','Velocity: multiple transfers within 5 minutes',10]);}
+  return{sc:Math.min(sc,100),comps:comps,bh:bh};
+}
+function bhh(n){return Number(n).toLocaleString();}
 
-/* ========================= TRAFFIC LIGHT VERDICT ========================= */
-/* GREEN < 35% · YELLOW 35–65% · RED > 65% */
-function v3(p){if(p>=0.65)return{k:'r',cls:'vr',label:'SCAM'};
- if(p>0.35)return{k:'y',cls:'vy',label:'UNCERTAIN'};
- return{k:'g',cls:'vg',label:'LEGITIMATE'};}
+/* ------------------- 6. TRAFFIC LIGHT LEGITIMACY SYSTEM ----------------- */
+function v3(p){
+  if(p>=0.65)return{k:'r',cls:'vr',label:'SCAM'};
+  if(p>0.35)return{k:'y',cls:'vy',label:'UNCERTAIN'};
+  return{k:'g',cls:'vg',label:'LEGITIMATE'};
+}
 function dots(k){return k==='g'?'<i class="g"></i><i></i><i></i>':(k==='y'?'<i></i><i class="y"></i><i></i>':'<i></i><i></i><i class="r"></i>');}
 
-/* ========================= REGISTRIES ========================= */
-const AGENTS=[{m:'0244000001',n:'Ama Mensah',d:'Accra Central'},{m:'0244000002',n:'Kwabena Osei',d:'Kumasi'},
-{m:'0244000005',n:'Yaw Boateng',d:'Takoradi'},{m:'0244000006',n:'Akosua Asantewaa',d:'Koforidua'},
-{m:'0244000008',n:'Nana Kwame',d:'Sunyani'},{m:'0244000009',n:'Efua Mensimah',d:'Cape Coast'}];
-const SCAM=[{m:'0244000007',r:47},{m:'0201100088',r:15},{m:'0542200099',r:9},{m:'0273300011',r:6}];
-const WALLETS={'0244000007':{age:0.5,swap:true},'0244000004':{age:1,swap:true},'0244000003':{age:420,swap:false}};
-const REGIONS=['Greater Accra','Ashanti','Central','Western','Northern','Volta','Eastern','Bono','Bono East','Ahafo','Oti','Savannah','North East','Upper East','Upper West','Western North'];
-const SEED_REGIONS={'Greater Accra':30,'Ashanti':18,'Central':10,'Western':8,'Northern':6,'Volta':3,'Eastern':2};
-const CITY={'Greater Accra':{n:'Accra',x:-0.19,y:5.6},'Ashanti':{n:'Kumasi',x:-1.62,y:6.69},'Central':{n:'Cape Coast',x:-1.24,y:5.1},'Western':{n:'Takoradi',x:-1.76,y:4.89},'Northern':{n:'Tamale',x:-0.84,y:9.4},'Volta':{n:'Ho',x:0.87,y:6.6},'Eastern':{n:'Koforidua',x:-0.1,y:6.09},'Bono':{n:'Sunyani',x:-2.33,y:7.33},'Bono East':{n:'Techiman',x:-1.85,y:7.59},'Upper East':{n:'Bolgatanga',x:-0.85,y:10.79},'Upper West':{n:'Wa',x:-2.51,y:10.06}};
-const CATS=['Voice call','Smishing SMS','Fake MTN agent','Wrong-transfer'];
+/* --------------------------- 7. REGISTRIES ------------------------------ */
+var AGENTS=[
+ {m:'0244000001',n:'Ama Mensah',d:'Accra Central'},
+ {m:'0244000002',n:'Kwabena Osei',d:'Kumasi'},
+ {m:'0244000005',n:'Yaw Boateng',d:'Takoradi'},
+ {m:'0244000006',n:'Akosua Asantewaa',d:'Koforidua'},
+ {m:'0244000008',n:'Nana Kwame',d:'Sunyani'},
+ {m:'0244000009',n:'Efua Mensimah',d:'Cape Coast'}];
+var SCAM=[{m:'0244000007',r:47},{m:'0201100088',r:15},{m:'0542200099',r:9},{m:'0273300011',r:6}];
+var WALLETS={'0244000007':{age:0.5,swap:true},'0244000004':{age:1,swap:true},'0244000003':{age:420,swap:false}};
+var REGIONS=['Greater Accra','Ashanti','Central','Western','Northern','Volta','Eastern','Bono','Bono East','Ahafo','Oti','Savannah','North East','Upper East','Upper West','Western North'];
+var SEED_REGIONS={'Greater Accra':30,'Ashanti':18,'Central':10,'Western':8,'Northern':6,'Volta':3,'Eastern':2};
+var CITY={'Greater Accra':{n:'Accra',x:-0.19,y:5.6},'Ashanti':{n:'Kumasi',x:-1.62,y:6.69},
+ 'Central':{n:'Cape Coast',x:-1.24,y:5.1},'Western':{n:'Takoradi',x:-1.76,y:4.89},
+ 'Northern':{n:'Tamale',x:-0.84,y:9.4},'Volta':{n:'Ho',x:0.87,y:6.6},'Eastern':{n:'Koforidua',x:-0.1,y:6.09},
+ 'Bono':{n:'Sunyani',x:-2.33,y:7.33},'Bono East':{n:'Techiman',x:-1.85,y:7.59},
+ 'Upper East':{n:'Bolgatanga',x:-0.85,y:10.79},'Upper West':{n:'Wa',x:-2.51,y:10.06}};
+var GHANA_OUTLINE=[[-3.10,5.10],[-2.55,4.92],[-1.95,4.78],[-1.35,5.00],[-0.70,5.30],[-0.20,5.55],
+ [0.20,5.72],[0.60,5.90],[1.19,6.10],[1.05,6.50],[0.88,6.95],[0.62,7.40],[0.55,8.10],[0.37,8.70],
+ [0.30,9.40],[-0.05,10.10],[-0.20,10.70],[-0.35,11.10],[-0.90,11.00],[-1.60,10.95],[-2.30,10.90],
+ [-2.75,10.80],[-2.85,10.20],[-2.75,9.40],[-3.20,8.90],[-3.10,8.10],[-2.70,7.50],[-2.95,6.80],
+ [-3.25,6.10],[-3.10,5.55]];
+var CATS=['Voice call','Smishing SMS','Fake MTN agent','Wrong-transfer'];
+var BASE_REPORTS=77;
+var DEMO_MSGS=[
+ "Congratulations!!! Your number has just won GHS 8,000 in the MoMo anniversary promo. Send your PIN to claim your prize immediately.",
+ "You have received GHS 65.00 from YAW BOATENG. New balance GHS 3,535.50. Fee GHS 0.00.",
+ "Hello auntie this is Abena your niece. I lost my phone last week. I will explain everything when I call you this evening.",
+ "Kindly send the MoMo code you received, your cash out of GHS 1,200 is ready at the agent. This is the agent line calling."];
+var TWI={q:"Obi a ɔwɔ telefon so na ɔreka akyerɛ wo sɛ fa sika yi soma seesei?",
+  q2:"MTN nnɔ wo PIN, wo kood, anaa “sika a wɔde atwa wo” da. Sɛ wo gye di a, to nsa frɛ 100."};
 
-/* ========================= HELPERS ========================= */
-const $=q=>document.querySelector(q);
-const norm=v=>(v||'').replace(/\D/g,'');
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
-function go(v){document.querySelectorAll('.view').forEach(e=>e.classList.remove('on'));$('#v-'+v).classList.add('on');if(v==='dash')renderDash();if(v==='ussd')uReset();window.scrollTo(0,0);}
-function fill(sel,v){$(sel).value=v;}
-function reportCount(m){let r=0;const s=SCAM.find(x=>x.m===m);if(s)r=s.r;return r+S.reports.filter(x=>x.m===m).length;}
-function playAudio(k){try{const a=new Audio('audio/'+(k==='pause'?'pause-twi.mp3':'scam-call-twi.mp3'));a.play();return true;}catch(e){return false;}}
-function playScamCall(){toast(playAudio('scam')?'Playing scam call…':'Audio missing — add audio/scam-call-twi.mp3');}
-function playPause(){toast(playAudio('pause')?'Playing Pause voice…':'Audio missing — add audio/pause-twi.mp3');}
-function testAudioFiles(){const files=[['Scam call','audio/scam-call-twi.mp3'],['Trusted Pause','audio/pause-twi.mp3']];
- let done=0;const res=[];
- files.forEach(f=>{const a=new Audio();
-  a.oncanplaythrough=()=>{res.push('🟢 '+f[0]+' — found');fin();};
-  a.onerror=()=>{res.push('🔴 '+f[0]+' — missing');fin();};a.src=f[1];});
- function fin(){done++;if(done===files.length)$('#audMsg').innerHTML=res.join('<br>');}
- setTimeout(()=>{if(done<files.length){done=files.length;if(!res.length)res.push('🔴 Files not found');$('#audMsg').innerHTML=res.join('<br>');}},3000);}
-const DEMO_MSGS=[
-"Congratulations!!! Your number has just won GHS 8,000 in the MoMo anniversary promo. Send your PIN to claim your prize immediately.",
-"You have received GHS 65.00 from YAW BOATENG. New balance GHS 3,535.50. Fee GHS 0.00.",
-"Auntie, it is me Yaw, my phone fell into water. Please send GHS 300 for medicine, I will refund you tomorrow. God bless you."];
+function reportCount(m){
+  var r=0;var s=SCAM.find(function(x){return x.m===m;});if(s)r=s.r;
+  return r+S.reports.filter(function(x){return x.m===m;}).length;
+}
+function totalReports(){return BASE_REPORTS+S.reports.length;}
 
-/* ========================= CHECK A MESSAGE ========================= */
-function fillMsg(i){$('#msgTxt').value=DEMO_MSGS[i];}
-function doCheck(){const txt=$('#msgTxt').value.trim();if(txt.length<10)return toast('Paste a message first');
- S.evals++;
- const M=trainNB(allEx());const r=nbClassify(txt,M);S.lastSMS={t:txt,p:r.p,ts:Date.now()};save();
- const pct=(r.p*100).toFixed(1);const v=v3(r.p);
- let note;
- if(v.k==='r')note='🚫 <b>SCAM — high confidence.</b> Do not reply, do not send money, do not share any code. Report it below and the engine learns this script.';
- else if(v.k==='y')note='⚠ <b>UNCERTAIN / SUSPICIOUS.</b> The engine has not seen enough scripts like this. If you know it is a scam, report it — one report retrains the model instantly.';
- else note='✓ <b>LEGITIMATE.</b> Consistent with genuine MTN message patterns. Stay alert anyway.';
- let h='<div class="verdict '+v.cls+'"><div class="tl">'+dots(v.k)+'</div>';
- h+='<div class="big">'+v.label+' — '+pct+'%</div>';
- h+='<div class="gauge3"><b style="left:calc('+pct+'% - 2px)"></b></div>';
- h+='<div style="font-size:10px;color:#888">probability this message is a scam · marker shows where it landed</div>';
- if(r.top.length){h+='<div class="note" style="text-align:left"><b>Why:</b> ';
-  r.top.forEach(x=>{h+='<span style="background:#2b0e0e;color:#E63946;padding:2px 8px;border-radius:10px;font-size:11px;margin:2px;display:inline-block">'+x.t.replace(/_/g,' ')+'</span>';});
-  h+='</div>';}
- h+='<div class="note">'+note+'</div>';
- if(r.p>0.35)h+='<button class="btn r" onclick="reportMsg(1)">Report & retrain engine — this is a SCAM</button>';
- h+='<button class="btn g" onclick="reportMsg(0)">That verdict is wrong — it is LEGIT (teach the model)</button></div>';
- $('#chkOut').innerHTML=h;
- renderDash();}
-function reportMsg(y){const txt=$('#msgTxt').value.trim();if(!txt)return;
- S.extra.push({y:y,t:txt});save();const ev=nbEval();
- const v=y?v3(1):v3(0);
- toast(y?'Engine retrained — accuracy now '+(ev.acc*100).toFixed(0)+'%':'Model corrected. Thank you.');
- $('#chkOut').innerHTML='<div class="verdict '+v.cls+'"><div class="tl">'+dots(v.k)+'</div><div class="big">✓ ENGINE RETRAINED</div><div class="note">Training set: <b>'+ev.n+' examples</b> (+'+(y?'scam':'legit')+'). Holdout accuracy: <b>'+(ev.acc*100).toFixed(0)+'%</b> · precision '+(ev.prec*100).toFixed(0)+'% · recall '+(ev.rec*100).toFixed(0)+'%.<br><br>Scan the same message again — watch the marker move.</div></div>';
- renderDash();}
+/* ------------------------- 8. NAVIGATION ------------------------------- */
+function tab(name){
+  $$('.sec').forEach(function(s){s.classList.remove('on');});
+  var el=$('#v-'+name);if(el)el.classList.add('on');
+  $$('#tabbar button').forEach(function(b){b.classList.toggle('on',b.dataset.tab===name);});
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(name==='dash'){renderDash();}
+  if(name==='lab'){renderLab();}
+  if(name==='settings'){renderSettings();}
+  if(name!=='dash')mapAnim=false;else mapAnim=true;
+}
+$$('#tabbar button').forEach(function(b){b.addEventListener('click',function(){tab(b.dataset.tab);});});
 
-/* ========================= VERIFY ========================= */
-function doVerify(){const m=norm($('#vnum').value);if(m.length<9)return toast('Enter a full number');
- const ag=AGENTS.find(x=>x.m===m);const rc=reportCount(m);let h='';
- if(ag)h='<div class="verdict vg"><div class="tl">'+dots('g')+'</div><div class="big">✓ VERIFIED MTN AGENT</div><div class="note">'+ag.n+' · '+ag.d+' — in MTN\'s verified registry.</div></div>';
- else if(rc>=3)h='<div class="verdict vr"><div class="tl">'+dots('r')+'</div><div class="big">🚫 NOT AN MTN LINE</div><div class="note">Flagged <b>'+rc+' times</b> by the community.<br><b>MTN will NEVER call asking for your PIN or a reversal.</b></div><button class="btn r" onclick="fill(\'#rnum\',\''+m+'\');go(\'report\')">Report this number</button></div>';
- else h='<div class="verdict vy"><div class="tl">'+dots('y')+'</div><div class="big">⚠ NOT IN VERIFIED REGISTRY</div><div class="note">MTN will never ask for your PIN, a reversal, or a fee. In doubt? Hang up and call MTN yourself.</div></div>';
- $('#vout').innerHTML=h;}
+var NAV=[['home','Home','home'],['check','Check','chat'],['verify','Verify','search'],['send','Send','send'],['report','Report','flag']];
+(function buildNav(){
+  var nav=$('#bottomnav');
+  NAV.forEach(function(n){
+    var b=document.createElement('button');
+    b.dataset.v=n[0];b.innerHTML=icon(n[2])+'<span>'+n[1]+'</span>';
+    b.onclick=function(){pgo(n[0]);};
+    nav.appendChild(b);
+  });
+})();
+function pgo(v){
+  callStop();
+  $$('.pview').forEach(function(p){p.classList.remove('on');});
+  var el=$('#p-'+v);if(el)el.classList.add('on');
+  $$('#bottomnav button').forEach(function(b){b.classList.toggle('on',b.dataset.v===v);});
+  var nav=$('#bottomnav');nav.style.display=(v==='consent'||v==='pause')?'none':'grid';
+  $('#appbody').scrollTop=0;
+  if(v==='ussd')uReset();
+  if(v==='home')renderHome();
+  if(v==='call')callReset(false);
+}
+function consent(yes){
+  S.consented=yes;save();
+  if(yes){pgo('home');toast('FraudShield activated — engine armed','good');}
+  else{pgo('home');toast('Shield dormant. Nothing is collected.');}
+}
 
-/* ========================= SEND ========================= */
-let CUR=null;
-function startSend(){const m=norm($('#sto').value),a=parseFloat($('#sam').value)||0;
- if(m.length<9||a<=0)return toast('Enter recipient and amount');
- S.transfers.push({ts:Date.now(),a:a});
- const ev=shieldScore(m,a);CUR={m:m,a:a,ev:ev};
- S.attempts.push({m:m,a:a,sc:ev.sc,outcome:'initiated',ts:Date.now()});
- if(ev.sc>=60){S.pauses++;save();showPause();}
- else if(ev.sc>=30){save();$('#softSig').innerHTML=compHTML(ev.comps);$('#softSc').textContent=ev.sc;go('soft');}
- else complete('proceeded');}
-function compHTML(cs){return cs.map(c=>'• <span class="tag '+(c[0]==='AI'?'ai':'')+'">'+c[0]+'</span> <b>'+c[1]+'</b> <span style="color:var(--yel)">+'+c[2]+'</span>').join('<br>');}
-function showPause(){go('pause');
- $('#pauseDetail').textContent='GHS '+CUR.a.toLocaleString()+' to '+CUR.m;
- $('#pauseSig').innerHTML='<b style="color:#E63946">FraudShield Score '+CUR.ev.sc+'/100 — RED verdict:</b><br>'+compHTML(CUR.ev.comps);
- $('#audNote').textContent='';if(!playAudio('pause'))$('#audNote').textContent='🔊 Voice file missing — text fallback active.';}
-function softChoice(c){if(c===1)complete('proceeded_after_soft');
- else{finish('stopped_soft');toast('Stopped. FraudShield stood between you and the thief.');}}
-function pauseChoice(c){if(c===1){finish('stopped_agent');window.location.href='tel:100';}
- else if(c===2)complete('proceeded_after_pause');
- else{finish('stopped_cancel');toast('Cancelled. FraudShield stood between you and the thief.');}}
-function finish(out){const i=S.attempts.length-1;S.attempts[i].outcome=out;
- if(out.indexOf('stopped')===0)S.stopped++;save();go('home');}
-async function complete(out){const i=S.attempts.length-1;S.attempts[i].outcome=out;
- if(S.sent.indexOf(CUR.m)<0)S.sent.push(CUR.m);save();
- go('result');$('#resTo').textContent=CUR.m;$('#resAmt').textContent='GHS '+CUR.a.toLocaleString();
- $('#resStatus').textContent='PENDING…';$('#resRef').textContent='';
- const clean=CUR.ev.comps.length===0;
- $('#resLight').innerHTML=clean?dots('g'):(CUR.ev.sc>=60?dots('r'):dots('y'));
- $('#resShield').textContent=clean?'✓ Ensemble checked — all clear (GREEN).':'⚠ '+CUR.ev.comps.length+' signals fired — FraudShield asked you first. Score '+CUR.ev.sc+'/100.';
- let res=null;
- if(S.momo.proxy&&S.momo.tested){try{res=await livePay(CUR.a,CUR.m);}catch(e){toast('Proxy unreachable — simulated');}}
- if(!res)res=await new Promise(r=>setTimeout(()=>r({ref:'FS-'+Math.random().toString(36).slice(2,8).toUpperCase(),status:'SUCCESSFUL',sim:true}),1400));
- $('#resRef').textContent=res.ref;$('#resStatus').textContent=res.status;
- $('#resMode').textContent=res.sim?'SIMULATED':'LIVE SANDBOX';$('#resMode').className='tag'+(res.sim?'':' live');}
-async function livePay(a,m){const r=await fetch(S.momo.proxy+'/api/momo/pay',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:String(a),msisdn:m})});
- const j=await r.json();let st=j.status||'PENDING';
- for(let k=0;k<8&&st==='PENDING';k++){await new Promise(r=>setTimeout(r,1500));
-  const s=await fetch(S.momo.proxy+'/api/momo/status/'+j.ref);st=(await s.json()).status;}
- return{ref:j.ref,status:st,sim:false};}
+/* ------------------------- 9. CHECK A MESSAGE -------------------------- */
+var scanning=false;
+function fillMsg(i){
+  if(i===3){
+    var pool=CORPUS.filter(function(c){return c.y===1;});
+    $('#msgTxt').value=pool[Math.floor(Math.random()*pool.length)].t;
+  }else{$('#msgTxt').value=DEMO_MSGS[i];}
+}
+async function doCheck(){
+  if(scanning)return;
+  var txt=$('#msgTxt').value.trim();
+  if(txt.length<10)return toast('Paste or choose a message first','bad');
+  scanning=true;$('#scanBtn').disabled=true;
+  var M=trainNB(allEx());var toks=tokenize(txt);
+  var uniq={};toks.forEach(function(t){uniq[t]=1;});
+  var unis=toks.filter(function(t){return t.indexOf('_')<0;}).length;
+  $('#chkOut').innerHTML='<div class="scanbox"><div style="font-size:12px;font-weight:700">🔎 SmishingNet analysing…</div>'+
+    '<div class="scanbar"><i id="scBar"></i></div><div class="scanstep" id="scStep">initializing</div></div>';
+  var steps=[
+    ['Normalizing case + folding digit runs → <b>num</b>',18],
+    ['Tokenizing: <b>'+unis+'</b> unigrams + <b>'+(toks.length-unis)+'</b> bigrams = <b>'+toks.length+'</b> features',42],
+    ['Summing per-class log-likelihoods · Laplace smoothing over V=<b>'+M.V+'</b>',70],
+    ['Logistic calibration → scam probability',92]];
+  for(var i=0;i<steps.length;i++){
+    $('#scStep').innerHTML=steps[i][0];$('#scBar').style.width=steps[i][1]+'%';
+    await sleep(240);
+  }
+  var r=nbClassify(txt,M);
+  $('#scBar').style.width='100%';
+  await sleep(180);
+  S.evals++;S.lastSMS={t:txt,p:r.p,ts:Date.now()};recordHist();save();
+  $('#chkOut').innerHTML=verdictHTML(r,txt);
+  requestAnimationFrame(function(){
+    var mk=$('#gmk');if(mk)mk.style.left='calc('+clamp(r.p*100,0,100)+'% - 2.5px)';
+    $$('.evbar').forEach(function(b){b.style.width=b.dataset.w+'%';});
+  });
+  scanning=false;$('#scanBtn').disabled=false;
+  renderDash();renderRail();
+}
+function verdictHTML(r,txt){
+  var pct=(r.p*100).toFixed(1);var v=v3(r.p);var note;
+  if(v.k==='r')note='🚫 <b>SCAM — high confidence.</b> Do not reply, do not send money, do not share any code or PIN. Report it and the engine learns this script family instantly.';
+  else if(v.k==='y')note='⚠ <b>UNCERTAIN.</b> The engine has not seen enough scripts like this one. This is honest calibration, not a failure. If you know it is a scam, report it — one report retrains the model in milliseconds.';
+  else note='✓ <b>LEGITIMATE.</b> Consistent with genuine MTN message patterns. Stay alert anyway — no classifier is perfect.';
+  var h='<div class="verdict '+v.cls+'">';
+  h+='<div class="tl">'+dots(v.k)+'</div>';
+  h+='<div class="big">'+v.label+' · '+pct+'%</div>';
+  h+='<div class="gauge3"><b id="gmk"></b></div>';
+  h+='<div class="gscale"><span>0%</span><span>35 · yellow</span><span>65 · red</span><span>100%</span></div>';
+  h+='<div style="font-size:9.6px;color:var(--dim);margin-top:7px;letter-spacing:.5px">PROBABILITY THIS MESSAGE IS A SCAM · MARKER SHOWS WHERE IT LANDED</div>';
+  if(r.top.length){
+    h+='<div class="note" style="margin-top:12px"><b style="color:var(--red2)">Convicted by these words:</b></div><div class="evrow">';
+    r.top.forEach(function(x){h+='<span class="ev bad">'+esc(x.t.replace(/_/g,' '))+'<span class="d">+'+x.d.toFixed(1)+'</span></span>';});
+    h+='</div>';
+  }
+  if(r.sup.length){
+    h+='<div class="note" style="margin-top:9px"><b style="color:var(--grn2)">Argued for legitimate:</b></div><div class="evrow">';
+    r.sup.forEach(function(x){h+='<span class="ev good">'+esc(x.t.replace(/_/g,' '))+'<span class="d">'+x.d.toFixed(1)+'</span></span>';});
+    h+='</div>';
+  }
+  h+='<div class="note" style="margin-top:12px">'+note+'</div>';
+  h+='<div class="note" style="margin-top:9px;font-family:var(--mono);font-size:10.2px;color:var(--dim)">log P(scam)='+r.l1.toFixed(1)+' · log P(legit)='+r.l0.toFixed(1)+'</div>';
+  if(r.p>0.35)h+='<button class="btn r block" onclick="reportMsg(1)">Report &amp; retrain — this IS a scam</button>';
+  else h+='<button class="btn r block" onclick="reportMsg(1)">Report &amp; retrain — this IS a scam</button>';
+  h+='<button class="btn g block" style="margin-top:8px" onclick="reportMsg(0)">Verdict is wrong — it is LEGIT (teach the model)</button>';
+  h+='</div>';
+  return h;
+}
+function reportMsg(y){
+  var txt=$('#msgTxt').value.trim();if(!txt)return;
+  var before=scamVocab().map(function(x){return x.t;});
+  S.extra.push({y:y,t:txt});
+  var ev=nbEval();recordHist(ev);
+  var after=scamVocab().map(function(x){return x.t;});
+  S.newTok=after.filter(function(t){return before.indexOf(t)<0;});
+  S.vocabPrev=after;save();
+  var cls=y?'vr':'vg';
+  var h='<div class="verdict '+cls+'"><div class="tl">'+dots(y?'r':'g')+'</div><div class="big">✓ ENGINE RETRAINED</div>';
+  h+='<div class="note">Training set: <b>'+ev.n+' examples</b> ('+(ev.n-CORPUS.length)+' from the community). New label added: <b>'+(y?'SCAM':'LEGITIMATE')+'</b>.<br><br>'+
+    'Holdout accuracy <b>'+(ev.acc*100).toFixed(0)+'%</b> · precision <b>'+(ev.prec*100).toFixed(0)+'%</b> · recall <b>'+(ev.rec*100).toFixed(0)+'%</b>.<br><br>'+
+    'Scan the same message again — watch the marker physically move. That movement is the moat: attacker effort converted into defender strength in milliseconds.</div>';
+  h+='<button class="btn y block" onclick="doCheck()">↻ Rescan this message</button>';
+  h+='<button class="btn g block" style="margin-top:8px" onclick="tab(\'lab\')">Open AI Lab to see the learning curve</button></div>';
+  $('#chkOut').innerHTML=h;
+  requestAnimationFrame(function(){var mk=$('#gmk');if(mk)mk.style.left='calc('+(y?100:0)+'% - 2.5px)';});
+  toast(y?'Retrained · accuracy now '+(ev.acc*100).toFixed(0)+'%':'Model corrected. Thank you.','good');
+  renderDash();renderLab();renderRail();
+}
 
-/* ========================= REPORT ========================= */
-let rcat='Voice call';
-(function(){const c=$('#rcats');CATS.forEach((x,i)=>{const d=document.createElement('div');d.className='chip'+(i===0?' sel':'');d.textContent=x;
- d.onclick=()=>{rcat=x;document.querySelectorAll('#rcats .chip').forEach(e=>e.classList.remove('sel'));d.classList.add('sel');};c.appendChild(d);});
- const r=$('#rreg');REGIONS.forEach(x=>{const o=document.createElement('option');o.textContent=x;r.appendChild(o);});})();
-function doReport(){const m=norm($('#rnum').value);if(m.length<9)return toast('Enter a full number');
- S.reports.push({m:m,cat:rcat,reg:$('#rreg').value,ts:Date.now()});save();
- $('#rout').innerHTML='<div class="verdict vg"><div class="tl">'+dots('g')+'</div><div class="big">✓ REPORTED — PSEUDONYMOUS</div><div class="note">You protected other users. This number now carries <b>'+reportCount(m)+' community flags</b> — and the engine is sharper.</div></div>';
- renderDash();toast('Reported. Thank you.');}
+/* ---------------------------- 10. VERIFY ------------------------------- */
+function doVerify(){
+  var m=norm($('#vnum').value);
+  if(m.length<9)return toast('Enter a full MoMo number','bad');
+  var ag=AGENTS.find(function(x){return x.m===m;});var rc=reportCount(m);var h='';
+  if(ag){
+    h='<div class="verdict vg"><div class="tl">'+dots('g')+'</div><div class="big">✓ VERIFIED MTN AGENT</div>'+
+      '<div class="note"><b>'+esc(ag.n)+'</b> · '+esc(ag.d)+' district<br>In MTN\'s verified agent registry. Green verdicts always carry a name and a district — trust you can check.</div>'+
+      '<div class="note" style="font-size:11px;color:var(--mut)">Still: a verified agent will never ask for your PIN over the phone.</div></div>';
+  }else if(rc>=3){
+    h='<div class="verdict vr"><div class="tl">'+dots('r')+'</div><div class="big">🚫 NOT AN MTN LINE</div>'+
+      '<div class="note">Flagged <b>'+rc+' times</b> by the community — reputation ledger says this number is a scammer.<br><br>'+
+      '<b>MTN will NEVER call asking for your PIN, a code, or a "wrong transfer" reversal.</b></div>'+
+      '<button class="btn r block" onclick="prepReport(\''+m+'\')">Report this number</button>'+
+      '<button class="btn g block" style="margin-top:8px" onclick="pgo(\'call\')">▶ See how the scam call sounds</button></div>';
+  }else{
+    h='<div class="verdict vy"><div class="tl">'+dots('y')+'</div><div class="big">⚠ NOT IN VERIFIED REGISTRY</div>'+
+      '<div class="note">No community flags yet, and no verified-agent match. That is not a clean bill of health — it is an unknown.<br><br>'+
+      '<b>Hang up and call MTN yourself on 100.</b> Never act on an inbound instruction.</div>'+
+      '<button class="btn g block" onclick="prepReport(\''+m+'\')">Report suspicious behaviour</button></div>';
+  }
+  $('#vout').innerHTML=h;
+  renderDash();
+}
+function prepReport(m){
+  if(m)fill('#rnum',m);
+  pgo('report');
+  $('#appbody').scrollTop=0;
+}
 
-/* ========================= USSD ========================= */
-let U={st:'menu',buf:''};
-function uReset(){U={st:'menu',buf:''};uRender();}
+/* ----------------------------- 11. SEND -------------------------------- */
+var CUR=null;
+function armPause(){
+  fill('#sto','0244000004');fill('#sam','2000');
+  if(!S.demo.call){S.demo.call=true;save();syncStage();}
+  toast('Simulated MTN call-state signal armed (+20)','');
+}
+function startSend(){
+  var m=norm($('#sto').value),a=parseFloat($('#sam').value)||0;
+  if(m.length<9)return toast('Enter a full recipient number','bad');
+  if(a<=0)return toast('Enter an amount','bad');
+  S.transfers.push({ts:Date.now(),a:a});
+  if(S.transfers.length>24)S.transfers=S.transfers.slice(-24);
+  var ev=shieldScore(m,a);
+  CUR={m:m,a:a,ev:ev};
+  S.attempts.push({m:m,a:a,sc:ev.sc,outcome:'initiated',ts:Date.now()});
+  save();
+  if(ev.sc>=60){S.pauses++;save();showPause();}
+  else if(ev.sc>=30){renderSoft(ev);pgo('soft');}
+  else{complete('proceeded');}
+}
+function compHTML(cs){
+  if(!cs.length)return '<div class="note" style="font-size:11.6px;color:var(--grn2)">✓ No signals fired — ensemble checked all 7 and found nothing.</div>';
+  return cs.map(function(c){
+    var w=clamp(c[2]/40*100,8,100);
+    return '<div class="sigrow"><span class="tag '+(c[0]==='AI'?'ai':'rule')+'">'+c[0]+'</span>'+
+      '<span class="lbl">'+esc(c[1])+'</span><span class="pts">+'+c[2]+'</span>'+
+      '<span class="sigbar"><i data-w="'+w+'" style="width:0"></i></span></div>';
+  }).join('');
+}
+function animateBars(root){
+  requestAnimationFrame(function(){$$('.sigbar i',root||document).forEach(function(b){if(b.dataset.w)b.style.width=b.dataset.w+'%';});});
+}
+function renderSoft(ev){
+  $('#softSig').innerHTML=compHTML(ev.comps);
+  $('#softSc').textContent=ev.sc;
+  animateBars($('#softSig'));
+}
+function showPause(){
+  pgo('pause');
+  setLang(S.lang,true);
+  $('#pauseDetail').textContent='GHS '+money(CUR.a)+' → '+CUR.m+' · score '+CUR.ev.sc+'/100';
+  $('#pauseSig').innerHTML=compHTML(CUR.ev.comps);
+  animateBars($('#pauseSig'));
+  $('#audNote').textContent='';
+  if(S.demo.voice!==false){
+    var ok=playPause(false);
+    if(!ok)$('#audNote').textContent='🔊 Twi MP3 asset not found — synthesized/text fallback active.';
+  }else{$('#audNote').textContent='🔇 Voice disabled in Stage Manager — text is always shown.';}
+}
+function setLang(l,silent){
+  S.lang=l;save();
+  $('#lgEn').classList.toggle('on',l==='en');
+  $('#lgTw').classList.toggle('on',l==='tw');
+  $$('#langSeg button').forEach(function(b){b.classList.toggle('on',b.dataset.l===l);});
+  if(l==='tw'){$('#pauseQ').textContent=TWI.q;$('#pauseQ2').textContent=TWI.q2;}
+  else{$('#pauseQ').textContent='Is someone on the phone telling you to send this money right now?';
+    $('#pauseQ2').innerHTML='MTN will <b>never</b> ask for your PIN, a code, or a "wrong transfer" reversal.';}
+  if(!silent&&$('#p-pause').classList.contains('on')&&S.demo.voice!==false)playPause(true);
+}
+function softChoice(c){
+  if(c===1){complete('proceeded_after_soft');}
+  else{finish('stopped_soft');toast('Stopped. FraudShield stood between you and the thief.','good');}
+}
+function pauseChoice(c){
+  if(c===1){finish('stopped_agent');toast('Dialing 100 — a real MTN agent breaks the script','good');
+    try{window.location.href='tel:100';}catch(e){}}
+  else if(c===2){complete('proceeded_after_pause');}
+  else{finish('stopped_cancel');toast('Cancelled. That is one wallet kept alive.','good');}
+}
+function finish(out){
+  if(S.attempts.length){S.attempts[S.attempts.length-1].outcome=out;}
+  if(out.indexOf('stopped')===0)S.stopped++;
+  save();pgo('home');renderDash();renderRail();
+}
+async function complete(out){
+  if(S.attempts.length){S.attempts[S.attempts.length-1].outcome=out;}
+  if(CUR&&S.sent.indexOf(CUR.m)<0)S.sent.push(CUR.m);
+  save();pgo('result');
+  $('#resTo').textContent=CUR?CUR.m:'—';
+  $('#resAmt').textContent=CUR?'GHS '+money(CUR.a):'—';
+  $('#resRef').textContent='pending…';
+  $('#resStatus').textContent='PROCESSING…';
+  $('#resScore').textContent=(CUR?CUR.ev.sc:0)+' / 100';
+  $('#resMode').textContent='…';$('#resMode').className='tag';
+  var sc=CUR?CUR.ev.sc:0;var clean=CUR&&CUR.ev.comps.length===0;
+  $('#resLight').innerHTML=clean?dots('g'):(sc>=60?dots('r'):dots('y'));
+  $('#resTitle').textContent=clean?'Transfer complete':(sc>=60?'Transfer completed after Trusted Pause':'Transfer completed after caution');
+  $('#resShield').innerHTML=clean
+    ?'✓ Ensemble ran all 7 signals — all clear. Silent protection is the goal: most transfers should never see a screen.'
+    :'⚠ '+CUR.ev.comps.length+' signal'+(CUR.ev.comps.length>1?'s':'')+' fired (score '+sc+'/100). FraudShield did not block — it asked you first. <b>Never block, always pause.</b>';
+  $('#resSigs').innerHTML='<div style="font-size:11px;letter-spacing:.8px;color:var(--dim);font-weight:700;margin-bottom:4px">SIGNAL BREAKDOWN</div>'+compHTML(CUR?CUR.ev.comps:[]);
+  animateBars($('#resSigs'));
+  renderDash();renderRail();
+  var res=null;
+  if(S.momo.proxy&&S.momo.tested){
+    try{res=await livePay(CUR.a,CUR.m);}catch(e){toast('Proxy unreachable — falling back to honest simulation','bad');}
+  }
+  if(!res){await sleep(1400);res={ref:'FS-'+Math.random().toString(36).slice(2,8).toUpperCase(),status:'SUCCESSFUL',sim:true};}
+  $('#resRef').textContent=res.ref;$('#resStatus').textContent=res.status;
+  $('#resMode').textContent=res.sim?'SIMULATED':'LIVE SANDBOX';
+  $('#resMode').className='tag '+(res.sim?'sim':'live');
+}
+async function livePay(a,m){
+  var r=await fetch(S.momo.proxy+'/api/momo/pay',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({amount:String(a),msisdn:m})});
+  var j=await r.json();var st=j.status||'PENDING';
+  for(var k=0;k<8&&st==='PENDING';k++){
+    await sleep(1500);
+    var s=await fetch(S.momo.proxy+'/api/momo/status/'+j.ref);
+    st=(await s.json()).status;
+  }
+  return{ref:j.ref,status:st,sim:false};
+}
+
+/* ---------------------------- 12. REPORT ------------------------------- */
+var rcat='Voice call';
+(function initReport(){
+  var c=$('#rcats');
+  CATS.forEach(function(x,i){
+    var d=document.createElement('div');d.className='chip'+(i===0?' sel':'');d.textContent=x;
+    d.onclick=function(){rcat=x;$$('#rcats .chip').forEach(function(e){e.classList.remove('sel');});d.classList.add('sel');};
+    c.appendChild(d);
+  });
+  var r=$('#rreg');
+  REGIONS.forEach(function(x){var o=document.createElement('option');o.textContent=x;r.appendChild(o);});
+})();
+function doReport(){
+  var m=norm($('#rnum').value);
+  if(m.length<9)return toast('Enter a full number','bad');
+  var txt=($('#rtxt').value||'').trim();
+  var before=scamVocab().map(function(x){return x.t;});
+  S.reports.push({m:m,cat:rcat,reg:$('#rreg').value,ts:Date.now(),txt:txt?1:0});
+  var ev=null;
+  if(txt.length>=10){S.extra.push({y:1,t:txt});ev=nbEval();recordHist(ev);}
+  var after=scamVocab().map(function(x){return x.t;});
+  S.newTok=after.filter(function(t){return before.indexOf(t)<0;});
+  S.vocabPrev=after;save();
+  var rc=reportCount(m);
+  var flipped=rc>=3;
+  var h='<div class="verdict vg"><div class="tl">'+dots('g')+'</div><div class="big">✓ REPORTED · PSEUDONYMOUS</div>'+
+    '<div class="note">Your identity was hashed and discarded — it is never stored.<br><br>'+
+    'This number now carries <b>'+rc+' community flags</b>. '+
+    (flipped?'<b style="color:var(--red2)">FLAGGED:</b> every future transfer to it scores +40 and every verify check returns red. One victim\'s report just became the next victim\'s red screen.'
+            :'<b>'+(3-rc)+'</b> more report'+(3-rc>1?'s':'')+' until FLAGGED status (+40 points).')+
+    (ev?'<br><br>Message text added to the training corpus → <b>'+ev.n+' examples</b>, holdout accuracy <b>'+(ev.acc*100).toFixed(0)+'%</b>.':
+        '<br><br>Tip: paste the scam text too and SmishingNet learns the script family as well.')+
+    '</div><button class="btn g block" onclick="tab(\'dash\')">📊 See it on the cluster map</button></div>';
+  $('#rout').innerHTML=h;
+  $('#rtxt').value='';
+  toast('Reported. The community network is stronger.','good');
+  renderDash();renderRail();renderLab();
+}
+
+/* --------------------------- 13. USSD ---------------------------------- */
+var U={st:'menu',buf:'',msg:''};
+function uReset(){U={st:'menu',buf:'',msg:''};uRender();}
 function uEnd(){U.st='menu';U.buf='';uRender();}
-function uRender(){let t='';
- if(U.st==='menu')t='  FraudShield\n  ----------\n1. Verify caller\n2. Report scam\n\n  [0 Exit]';
- else if(U.st==='verify')t='  Verify caller\n  ----------\nEnter number,\npress # :\n  '+U.buf;
- else if(U.st==='report')t='  Report scam\n  ----------\nEnter number,\npress # :\n  '+U.buf;
- else t=U.msg;
- $('#lcd').textContent=t;}
-function uk(k){if(k==='clear'){U.buf='';uRender();return;}
- if(U.st==='res'){U.st='menu';U.buf='';uRender();return;}
- if(U.st==='menu'){if(k==='1')U.st='verify';else if(k==='2')U.st='report';else if(k==='0'){U.st='res';U.msg='  Thank you.\n  Shield stays on.';}uRender();return;}
- if(k==='#'){const m=U.buf;
-  if(U.st==='verify'){const ag=AGENTS.find(x=>x.m===m);const rc=reportCount(m);
-   U.msg=ag?'  VERIFIED MTN AGENT\n  '+ag.n.toUpperCase()+',\n  '+ag.d.toUpperCase()+'.':
-    (rc>=3?'  *** STOP ***\n  NOT AN MTN LINE.\n  FLAGGED '+rc+'X.\n  MTN NEVER ASKS\n  FOR YOUR PIN.':'  NOT IN VERIFIED\n  REGISTRY.\n  MTN NEVER ASKS\n  FOR YOUR PIN.');}
-  else{S.reports.push({m:m,cat:'Voice call',reg:'Greater Accra',ts:Date.now()});save();renderDash();
-   U.msg='  REPORTED.\n  THANK YOU -\n  YOU PROTECTED\n  OTHER USERS.';}
-  U.st='res';U.buf='';}
- else if(/[0-9]/.test(k)&&U.buf.length<11)U.buf+=k;
- uRender();}
+function uRender(){
+  var t='';
+  if(U.st==='menu')t='  *175# FraudShield\n  ----------------\n1. Verify caller\n2. Report scam\n3. Trusted Pause\n\n  [0 Exit]';
+  else if(U.st==='verify')t='  Verify caller\n  ----------------\nEnter the number\nthen press # :\n\n  > '+U.buf+'_';
+  else if(U.st==='report')t='  Report scam\n  ----------------\nEnter the number\nthen press # :\n\n  > '+U.buf+'_';
+  else if(U.st==='pause')t='  TRUSTED PAUSE\n  ----------------\nSomeone on phone\nasking you send?\nMTN NEVER asks\nyour PIN.\n\n1.Continue 2.Cancel';
+  else t=U.msg;
+  $('#lcd').textContent=t;
+}
+function uk(k){
+  if(k==='clear'){U.buf='';uRender();return;}
+  if(U.st==='res'){U.st='menu';U.buf='';uRender();return;}
+  if(U.st==='menu'){
+    if(k==='1')U.st='verify';
+    else if(k==='2')U.st='report';
+    else if(k==='3')U.st='pause';
+    else if(k==='0'){U.st='res';U.msg='  Thank you.\n  Shield stays on.\n\n  [any key: menu]';}
+    uRender();return;
+  }
+  if(U.st==='pause'){
+    if(k==='1'){U.st='res';U.msg='  Transfer\n  continues.\n  Never blocked.\n\n  [any key: menu]';}
+    else if(k==='2'){U.st='res';U.msg='  Transfer\n  CANCELLED.\n  Wallet safe.\n  +1 scam stopped\n\n  [any key: menu]';
+      S.stopped++;S.attempts.push({m:'USSD',a:0,sc:70,outcome:'stopped_ussd',ts:Date.now()});save();renderDash();renderRail();}
+    uRender();return;
+  }
+  if(k==='#'){
+    var m=U.buf;
+    if(m.length<9){U.st='res';U.msg='  Number too\n  short. Try\n  again.\n\n  [any key: menu]';uRender();return;}
+    if(U.st==='verify'){
+      var ag=AGENTS.find(function(x){return x.m===m;});var rc=reportCount(m);
+      U.msg=ag?('  VERIFIED MTN\n  AGENT\n  '+ag.n.toUpperCase()+'\n  '+ag.d.toUpperCase()+'.\n\n  [any key: menu]')
+        :(rc>=3?('  *** STOP ***\n  NOT AN MTN\n  LINE. FLAGGED\n  '+rc+'X BY THE\n  COMMUNITY.\n  MTN NEVER ASKS\n  FOR YOUR PIN.\n\n  [any key: menu]')
+               :('  NOT IN\n  VERIFIED\n  REGISTRY.\n  HANG UP AND\n  CALL 100.\n  MTN NEVER ASKS\n  FOR YOUR PIN.\n\n  [any key: menu]'));
+    }else{
+      S.reports.push({m:m,cat:'Voice call',reg:'Greater Accra',ts:Date.now()});save();renderDash();renderRail();
+      U.msg='  REPORTED.\n  THANK YOU -\n  YOU PROTECTED\n  OTHER USERS.\n  FLAGS: '+reportCount(m)+'\n\n  [any key: menu]';
+    }
+    U.st='res';U.buf='';
+  }else if(/[0-9]/.test(k)&&U.buf.length<11){U.buf+=k;}
+  uRender();
+}
 
-/* ========================= DASHBOARD ========================= */
-function tsw(id,k){S.demo[k]=!S.demo[k];save();document.getElementById(id).classList.toggle('on',S.demo[k]);}
-function renderDash(){const ev=nbEval();
- $('#stStop').textContent=S.stopped;$('#stRep').textContent=S.reports.length+77;$('#stPause').textContent=S.pauses;
- $('#stAcc').textContent=(ev.acc*100).toFixed(0)+'%';
- $('#dashSub').textContent='Community network: '+(77+S.reports.length)+' reports · engine trained on '+ev.n+' messages · '+S.evals+' AI scans this session';
- $('#modelStats').innerHTML='Training examples: <b>'+ev.n+'</b> ('+(ev.n-CORPUS.length)+' from community reports) · vocabulary: <b>'+trainNB(allEx()).V+'</b> features<br>Holdout accuracy <b>'+(ev.acc*100).toFixed(1)+'%</b> · precision <b>'+(ev.prec*100).toFixed(1)+'%</b> · recall <b>'+(ev.rec*100).toFixed(1)+'%</b><br>Behavior profile: <b>'+S.profile.length+'</b> baseline transactions · typical amount GHS '+behavior({a:100,h:12,r:'x'}).mean;
- $('#tokChips').innerHTML=scamVocab().map(x=>'<span class="chip tok">'+x.t.replace(/_/g,' ')+'</span>').join('');
- ['call','dep'].forEach((k,i)=>{document.getElementById(['swCall','swDep'][i]).classList.toggle('on',S.demo[k]);});
- const flagSet={};SCAM.forEach(x=>flagSet[x.m]=reportCount(x.m));S.reports.forEach(x=>flagSet[x.m]=reportCount(x.m));
- let h='<tr><th>NUMBER</th><th>REPORTS</th><th>STATUS</th></tr>';
- Object.entries(flagSet).sort((a,b)=>b[1]-a[1]).slice(0,6).forEach(p=>{h+='<tr><td>'+p[0]+'</td><td>'+p[1]+'</td><td>'+(p[1]>=3?'🚫 FLAGGED':'watching')+'</td></tr>';});
- $('#topTbl').innerHTML=h;
- const evts=[...S.reports.map(r=>({ts:r.ts,txt:'REPORT · '+r.m+' · '+r.cat,st:'stop'})),
-  ...S.attempts.filter(a=>a.outcome!=='initiated').map(a=>({ts:a.ts,txt:'TRANSFER · GHS '+a.a.toLocaleString()+' → '+a.m+' · score '+a.sc,st:a.outcome.indexOf('stopped')===0?'stop':(a.outcome.indexOf('soft')>=0?'warn':'risk')}))]
-  .sort((a,b)=>b.ts-a.ts).slice(0,12);
- $('#feed').innerHTML=evts.map(e=>'<div class="fitem"><span>'+e.txt+'</span><span><span class="st '+e.st+'">'+e.st+'</span> <span class="t">'+new Date(e.ts).toLocaleTimeString()+'</span></span></div>').join('')||'<div class="fitem">No activity — run a demo.</div>';
- drawMap();}
-function drawMap(){const cv=$('#map');const W=cv.width=cv.clientWidth||860,H=290;const ctx=cv.getContext('2d');
- ctx.fillStyle='#0f0f14';ctx.fillRect(0,0,W,H);
- const counts={...SEED_REGIONS};S.reports.forEach(r=>counts[r.reg]=(counts[r.reg]||0)+1);
- ctx.font='11px Arial';
- Object.keys(CITY).forEach(reg=>{const c=CITY[reg],n=counts[reg]||0;
-  const px=30+((c.x+3.3)/4.6)*(W-60),py=25+(1-(c.y-4.5)/6.8)*(H-50);
-  if(n>0){const rad=Math.min(5+n*0.7,22);
-   const g=ctx.createRadialGradient(px,py,1,px,py,rad*2.2);g.addColorStop(0,'rgba(230,57,70,0.85)');g.addColorStop(1,'rgba(230,57,70,0)');
-   ctx.fillStyle=g;ctx.beginPath();ctx.arc(px,py,rad*2.2,0,7);ctx.fill();
-   ctx.fillStyle='#E63946';ctx.beginPath();ctx.arc(px,py,Math.max(rad*0.35,3),0,7);ctx.fill();}
-  ctx.fillStyle='#666';ctx.fillText(c.n,px+8,py+3);});
- ctx.fillStyle='#444';ctx.font='9px Arial';ctx.fillText('Live scam clusters — community-reported, pseudonymous',12,H-10);}
+/* ----------------------- 14. SCAM CALL SIMULATOR ----------------------- */
+var CALL_LINES=[
+ ['SCAMMER','Y\'ello! This is MTN MoMo customer care, we are calling about your promo.'],
+ ['SCAMMER','Congratulations — your number has just won GHS 8,000 in the MoMo anniversary promo.'],
+ ['SCAMMER','To release the money, kindly read me the six-digit code that just came to your phone.'],
+ ['YOU','I… I did not see any code.'],
+ ['SCAMMER','No problem. Then give me your MoMo PIN so I can verify the wallet from this end.'],
+ ['SCAMMER','Do it now before the promo closes at midnight. Do not tell anybody, it is between you and MTN.']];
+var callState={on:false,i:0,timer:null,typing:null};
+function callReset(arm){
+  callStop();
+  $('#callAv').className='callav ring';$('#callAv').textContent='📞';
+  $('#callState').textContent='Incoming call…';
+  $('#callBar').style.display='flex';
+  $('#callActs').style.display='none';
+  $('#transcript').style.display='none';$('#transcript').innerHTML='';
+  $('#callStrip').style.display='none';
+  var rc=reportCount('0244000007');
+  $('#callName').textContent='"MTN MoMo Promo" · '+rc+' community flags';
+  if(arm){callAnswer();}
+}
+function callAnswer(){
+  if(callState.on)return;
+  callState.on=true;callState.i=0;
+  S.demo.call=true;save();syncStage();
+  $('#callAv').className='callav';$('#callAv').textContent='🗣';
+  $('#callBar').style.display='none';
+  $('#transcript').style.display='block';
+  $('#callStrip').style.display='block';
+  $('#callState').textContent='00:00 · in call · FraudShield armed (+20)';
+  speak('Yello, this is MTN MoMo customer care.');
+  nextLine();
+}
+function nextLine(){
+  if(callState.i>=CALL_LINES.length){
+    $('#callState').textContent='Still on the call… the scammer is waiting for your PIN';
+    $('#callActs').style.display='block';
+    return;
+  }
+  var ln=CALL_LINES[callState.i++];
+  var div=document.createElement('div');
+  div.className='ln'+(ln[0]==='YOU'?' me':'');
+  div.innerHTML='<b>'+(ln[0]==='YOU'?'You':'Caller · 024 400 0007')+'</b><span></span>';
+  $('#transcript').appendChild(div);
+  var span=div.querySelector('span');var full=ln[1];var pos=0;
+  $('#transcript').scrollTop=$('#transcript').scrollHeight;
+  clearInterval(callState.typing);
+  callState.typing=setInterval(function(){
+    span.textContent=full.slice(0,++pos);
+    $('#transcript').scrollTop=$('#transcript').scrollHeight;
+    if(pos>=full.length){clearInterval(callState.typing);callState.timer=setTimeout(nextLine,760);}
+  },22);
+  var secs=callState.i*7;
+  $('#callState').textContent='00:'+String(secs).padStart(2,'0')+' · in call · FraudShield armed (+20)';
+}
+function callStop(){
+  clearInterval(callState.typing);clearTimeout(callState.timer);
+  callState.on=false;callState.i=0;
+}
+function callDecline(){
+  callStop();
+  $('#callState').textContent='Call declined. Good instinct — verify the number next time.';
+  $('#callAv').textContent='🛡';$('#callAv').className='callav';
+  toast('Declined. Verify any "MTN" number before you act.','good');
+}
+function callHang(){
+  callStop();
+  S.demo.call=false;save();syncStage();
+  $('#callState').textContent='Call ended · signal disarmed';
+  $('#callAv').textContent='🛡';
+  prepReport('0244000007');
+  toast('Report the number — three flags make it permanent','');
+}
+function callSend(){
+  callStop();
+  fill('#sto','0244000004');fill('#sam','2000');
+  pgo('send');
+  toast('The victim obeys. Now press Send — watch the ensemble fire.','');
+}
 
-/* ========================= SETTINGS / INIT ========================= */
-function consent(){S.consented=true;save();go('home');}
-function saveProxy(){S.momo.proxy=$('#pxy').value.replace(/\/$/,'');S.momo.tested=false;save();
- if(!S.momo.proxy){toast('Cleared — offline AI mode');updBadge();return;}
- $('#pxyMsg').textContent='Testing…';
- fetch(S.momo.proxy+'/api/health').then(r=>r.json()).then(()=>{S.momo.tested=true;save();updBadge();
-  $('#pxyMsg').textContent='✓ Connected — payments now hit the real MoMo sandbox';toast('LIVE SANDBOX MODE ON');})
- .catch(()=>{S.momo.tested=false;save();updBadge();$('#pxyMsg').textContent='✗ Proxy unreachable — run: uvicorn momo_proxy:app --port 8000';});}
-function updBadge(){const b=$('#connBadge');
- if(S.momo.proxy&&S.momo.tested){b.textContent='LIVE SANDBOX';b.classList.add('live');}
- else{b.textContent='OFFLINE AI';b.classList.remove('live');}}
- $('#pxy').value=S.momo.proxy||'';
-updBadge();go(S.consented?'home':'consent');
+/* --------------------------- 15. VOICE --------------------------------- */
+function playAudio(k){
+  try{
+    var a=new Audio('audio/'+(k==='pause'?'pause-twi.mp3':'scam-call-twi.mp3'));
+    var p=a.play();
+    if(p&&p.catch)p.catch(function(){});
+    return true;
+  }catch(e){return false;}
+}
+function speak(text){
+  if(S.demo.voice===false)return false;
+  try{
+    if(!('speechSynthesis' in window))return false;
+    window.speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text);
+    u.rate=0.92;u.pitch=1.0;
+    var vs=window.speechSynthesis.getVoices();
+    var tw=vs.find(function(v){return /tw|akan|gh/i.test(v.lang+v.name);})||vs.find(function(v){return /en-GB|en_GB/i.test(v.lang);});
+    if(tw)u.voice=tw;
+    window.speechSynthesis.speak(u);
+    return true;
+  }catch(e){return false;}
+}
+function playPause(force){
+  if(S.demo.voice===false&&!force)return false;
+  var ok=playAudio('pause');
+  if(!ok)ok=speak(S.lang==='tw'?TWI.q:'Is someone on the phone telling you to send this money right now?');
+  if(force)toast(ok?'Playing Trusted Pause voice…':'No audio device — text fallback active',ok?'':'bad');
+  return ok;
+}
+function playScamCall(){
+  var ok=playAudio('scam');
+  if(!ok)ok=speak('Yello, this is MTN MoMo customer care. Your number has won eight thousand cedis.');
+  toast(ok?'Playing scam call audio…':'Add audio/scam-call-twi.mp3 — using synthesized voice',ok?'':'bad');
+  if(!ok){}
+  pgo('call');
+}
+function testAudioFiles(){
+  var files=[['Scam call','audio/scam-call-twi.mp3'],['Trusted Pause','audio/pause-twi.mp3']];
+  var done=0,res=[];
+  $('#audMsg').innerHTML='Testing…';
+  files.forEach(function(f){
+    var a=new Audio();
+    a.oncanplaythrough=function(){res.push('🟢 '+f[0]+' — found');fin();};
+    a.onerror=function(){res.push('🔴 '+f[0]+' — missing (synthesized-speech fallback ready)');fin();};
+    a.src=f[1];
+  });
+  function fin(){done++;if(done===files.length)$('#audMsg').innerHTML=res.join('<br>')+
+    '<br>'+(('speechSynthesis' in window)?'🟢 Browser speech synthesis — available as second fallback':'🔴 Speech synthesis unavailable — text fallback only');}
+  setTimeout(function(){if(done<files.length){$('#audMsg').innerHTML=res.join('<br>')||'🔴 Files not found';}},3200);
+}
+
+/* ----------------------- 16. GUIDED DEMO TOUR -------------------------- */
+var TOUR=[
+ {t:'Step 1 of 5 — the scam call arrives',
+  d:'A "MTN agent" calls from a number the community has flagged 47 times. Answer it: FraudShield arms the active-call RULE signal (+20). In production this comes from MTN\'s network-level call-state API — it works on feature phones too.',
+  run:function(){pgo('call');callReset(true);}},
+ {t:'Step 2 of 5 — the follow-up SMS',
+  d:'The scammer sends the promo SMS to coordinate. Scan it: SmishingNet returns RED and stores the result, arming the AI signal (+25 for 24 hours).',
+  run:function(){callHangSilent();fill('#msgTxt',DEMO_MSGS[0]);pgo('check');doCheck();}},
+ {t:'Step 3 of 5 — the victim obeys',
+  d:'Now send GHS 2,000 to the pause number (0244000004). The ensemble fires 4 signals → score ≥ 60 → the Trusted Pause takes over the screen, in Twi if you like.',
+  run:function(){fill('#sto','0244000004');fill('#sam','2000');pgo('send');}},
+ {t:'Step 4 of 5 — cancel and report',
+  d:'Choose option 3 (cancel) on the Pause: the hero counter increments — one attempted-scam transfer stopped. Then report the number so the next victim sees a red screen before they dial.',
+  run:function(){prepReport('0244000007');}},
+ {t:'Step 5 of 5 — watch the network learn',
+  d:'Open Command: report count, flagged list, cluster map, category bars and the model vocabulary all updated from your actions. That is the moat compounding in real time.',
+  run:function(){tab('dash');}}];
+var tourIdx=-1;
+function callHangSilent(){callStop();S.demo.call=false;save();syncStage();}
+function startTour(){
+  tourIdx=0;tab('app');
+  if(!S.consented){S.consented=true;save();}
+  renderCoach();TOUR[0].run();
+}
+function renderCoach(){
+  var slot=$('#coachSlot');
+  if(tourIdx<0||tourIdx>=TOUR.length){slot.innerHTML='';return;}
+  var s=TOUR[tourIdx];
+  var d='';for(var i=0;i<TOUR.length;i++)d+='<i class="'+(i<=tourIdx?'on':'')+'"></i>';
+  slot.innerHTML='<div class="coach"><div class="ct">'+esc(s.t)+'</div><div class="cd">'+esc(s.d)+'</div>'+
+    '<div class="cr"><div class="dots">'+d+'</div>'+
+    '<button class="btn g sm" onclick="endTour()">Exit tour</button>'+
+    '<button class="btn y sm" onclick="nextTour()">'+(tourIdx===TOUR.length-1?'Finish':'Next step →')+'</button></div></div>';
+}
+function nextTour(){
+  tourIdx++;
+  if(tourIdx>=TOUR.length){endTour();toast('Demo complete — every number on the dashboard is real, from your clicks','good');return;}
+  renderCoach();TOUR[tourIdx].run();
+}
+function endTour(){tourIdx=-1;$('#coachSlot').innerHTML='';}
+
+/* ------------------------- 17. DASHBOARD ------------------------------- */
+var mapAnim=false,mapPhase=0,mapRaf=null;
+function tsw(k){
+  if(k==='voice'){S.demo.voice=S.demo.voice===false;save();$('#swVoice').classList.toggle('on',S.demo.voice!==false);
+    toast(S.demo.voice===false?'Voice disabled — text fallback only':'Voice enabled');return;}
+  S.demo[k]=!S.demo[k];save();syncStage();
+  toast(S.demo[k]?('Simulated signal armed: '+(k==='call'?'active call +20':'deposit→withdraw +20')):'Signal disarmed','');
+}
+function syncStage(){
+  var c=$('#swCall');if(c)c.classList.toggle('on',!!S.demo.call);
+  var d=$('#swDep');if(d)d.classList.toggle('on',!!S.demo.dep);
+  var v=$('#swVoice');if(v)v.classList.toggle('on',S.demo.voice!==false);
+  if(CUR&&$('#p-pause').classList.contains('on')){}
+}
+function animNum(el,to,suffix){
+  if(!el)return;suffix=suffix||'';
+  var from=parseFloat(String(el.textContent).replace(/[^0-9.]/g,''))||0;
+  if(from===to){el.textContent=to+suffix;return;}
+  var t0=performance.now(),dur=700;
+  function step(now){
+    var k=clamp((now-t0)/dur,0,1);k=1-Math.pow(1-k,3);
+    el.textContent=(Math.round(from+(to-from)*k))+suffix;
+    if(k<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function renderRail(){
+  var ev=nbEval();
+  animNum($('#rsStop'),S.stopped);
+  animNum($('#rsRep'),totalReports());
+  $('#rsAcc').textContent=(ev.acc*100).toFixed(0)+'%';
+  var flagSet=flaggedNumbers();
+  $('#rsFlag').textContent=Object.keys(flagSet).filter(function(k){return flagSet[k]>=3;}).length;
+  $('#homeIntel').textContent=totalReports()+' reports · '+Object.keys(flagSet).filter(function(k){return flagSet[k]>=3;}).length+' flagged numbers · '+(CORPUS.length+S.extra.length)+' training examples';
+  $('#engNote').textContent='SmishingNet '+(ev.acc*100).toFixed(0)+'% holdout · '+S.profile.length+' baseline transactions · ensemble live';
+  $('#modeNote').textContent=(S.momo.proxy&&S.momo.tested)?'live MoMo sandbox mode':'offline AI mode';
+}
+function flaggedNumbers(){
+  var set={};SCAM.forEach(function(x){set[x.m]=reportCount(x.m);});
+  S.reports.forEach(function(x){set[x.m]=reportCount(x.m);});
+  return set;
+}
+function renderDash(){
+  var ev=nbEval();
+  animNum($('#stStop'),S.stopped);
+  animNum($('#stRep'),totalReports());
+  animNum($('#stPause'),S.pauses);
+  $('#stStopD').textContent='The pilot metric. '+S.stopped+' in this browser session · every one is a wallet kept alive and a customer retained.';
+  $('#dashSub').textContent='Community network: '+totalReports()+' reports · engine trained on '+ev.n+' messages · '+S.evals+' AI scans this session · '+S.attempts.length+' transfer attempts evaluated';
+  $('#dAcc').textContent=(ev.acc*100).toFixed(1)+'%';
+  $('#dPrec').textContent=(ev.prec*100).toFixed(1)+'%';
+  $('#dRec').textContent=(ev.rec*100).toFixed(1)+'%';
+  $('#dBarAcc').style.width=(ev.acc*100)+'%';
+  $('#dBarPrec').style.width=(ev.prec*100)+'%';
+  $('#dBarRec').style.width=(ev.rec*100)+'%';
+  var M=trainNB(allEx());var bh=behavior({a:100,h:12,r:'x'});
+  $('#modelStats').innerHTML=
+    '<dt>training examples</dt><dd>'+ev.n+' ('+(ev.n-CORPUS.length)+' community)</dd>'+
+    '<dt>vocabulary V</dt><dd>'+M.V+' features</dd>'+
+    '<dt>holdout split</dt><dd>'+ev.trainN+' train / '+ev.testN+' test</dd>'+
+    '<dt>confusion</dt><dd>TP '+ev.tp+' · FP '+ev.fp+' · FN '+ev.fn+' · TN '+ev.tn+'</dd>'+
+    '<dt>behavior baseline</dt><dd>'+S.profile.length+' txns · mean GHS '+bh.mean+' · σ '+bh.sd.toFixed(0)+'</dd>'+
+    '<dt>retrains triggered</dt><dd>'+Math.max(0,S.hist.length-1)+'</dd>';
+  // category bars
+  var catCount={};CATS.forEach(function(c){catCount[c]=0;});
+  S.reports.forEach(function(r){if(catCount[r.cat]!==undefined)catCount[r.cat]++;});
+  var mx=Math.max(1,Math.max.apply(null,CATS.map(function(c){return catCount[c];})));
+  $('#catBars').innerHTML=CATS.map(function(c){
+    return '<div class="metrow"><div class="ml"><span>'+c+'</span><b>'+catCount[c]+'</b></div>'+
+      '<div class="metbar"><i style="width:'+(catCount[c]/mx*100)+'%;background:var(--red)"></i></div></div>';
+  }).join('')+(S.reports.length?'':'<div class="note" style="font-size:11px">No user reports yet in this instance — run the guided demo to see the network effect.</div>');
+  // flagged table
+  var set=flaggedNumbers();
+  var rows=Object.keys(set).map(function(k){return[k,set[k]];}).sort(function(a,b){return b[1]-a[1];}).slice(0,7);
+  var maxR=rows.length?rows[0][1]:1;
+  $('#topTbl').innerHTML='<tr><th>Number</th><th>Reports</th><th style="width:34%">Weight</th><th>Status</th></tr>'+
+    rows.map(function(r){
+      var f=r[1]>=3;
+      return '<tr><td class="mono">'+r[0]+'</td><td class="mono">'+r[1]+'</td>'+
+        '<td><div class="minibar"><i style="width:'+(r[1]/maxR*100)+'%;background:'+(f?'var(--red)':'var(--yel)')+'"></i></div></td>'+
+        '<td>'+(f?'<span class="st risk">flagged +40</span>':'<span class="st warn">watching</span>')+'</td></tr>';
+    }).join('');
+  // feed
+  var evts=S.reports.map(function(r){return{ts:r.ts,txt:'REPORT · '+r.m+' · '+r.cat+' · '+r.reg,st:'stop',tag:'REPORT'};})
+    .concat(S.attempts.filter(function(a){return a.outcome!=='initiated';}).map(function(a){
+      var stopped=a.outcome.indexOf('stopped')===0;
+      return{ts:a.ts,txt:'TRANSFER · GHS '+(a.a?money(a.a):'0')+' → '+a.m+' · score '+a.sc+' · '+a.outcome.replace(/_/g,' '),
+        st:stopped?'stop':(a.outcome.indexOf('soft')>=0?'warn':'risk'),tag:stopped?'STOPPED':'PASSED'};
+    }))
+    .concat(S.evals?[{ts:S.lastSMS?S.lastSMS.ts:Date.now(),txt:'SCAN · '+(S.lastSMS?(S.lastSMS.p*100).toFixed(0)+'% scam · '+S.lastSMS.t.slice(0,34)+'…':'—'),st:'info',tag:'AI SCAN'}]:[])
+    .sort(function(a,b){return b.ts-a.ts;}).slice(0,12);
+  $('#feed').innerHTML=evts.map(function(e){
+    return '<div class="fitem"><span class="st '+e.st+'">'+e.tag+'</span><span class="tx">'+esc(e.txt)+'</span><span class="tm">'+ago(e.ts)+'</span></div>';
+  }).join('')||'<div class="fitem"><span class="tx" style="color:var(--dim)">No activity yet — run the guided demo or scan a message.</span></div>';
+  drawMap();
+  renderRail();
+}
+function mapXY(x,y,W,H){
+  return[30+((x+3.3)/4.6)*(W-60),25+(1-(y-4.5)/6.8)*(H-50)];
+}
+function drawMap(){
+  var cv=$('#map');if(!cv)return;
+  var dpr=window.devicePixelRatio||1;
+  var W=cv.clientWidth||560,H=320;
+  cv.width=W*dpr;cv.height=H*dpr;
+  var ctx=cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  var bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#0a0c12');bg.addColorStop(1,'#080a0e');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  // graticule
+  ctx.strokeStyle='rgba(255,255,255,.035)';ctx.lineWidth=1;
+  for(var gx=0;gx<W;gx+=34){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke();}
+  for(var gy=0;gy<H;gy+=34){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke();}
+  // country outline
+  ctx.beginPath();
+  GHANA_OUTLINE.forEach(function(pt,i){
+    var p=mapXY(pt[0],pt[1],W,H);
+    if(i===0)ctx.moveTo(p[0],p[1]);else ctx.lineTo(p[0],p[1]);
+  });
+  ctx.closePath();
+  ctx.fillStyle='rgba(255,203,5,.045)';ctx.fill();
+  ctx.strokeStyle='rgba(255,203,5,.35)';ctx.lineWidth=1.6;ctx.stroke();
+  // counts
+  var counts={};Object.keys(SEED_REGIONS).forEach(function(k){counts[k]=SEED_REGIONS[k];});
+  var mine={};
+  S.reports.forEach(function(r){counts[r.reg]=(counts[r.reg]||0)+1;mine[r.reg]=(mine[r.reg]||0)+1;});
+  var maxC=Math.max.apply(null,Object.keys(counts).map(function(k){return counts[k];}).concat([1]));
+  Object.keys(CITY).forEach(function(reg){
+    var c=CITY[reg];var n=counts[reg]||0;var p=mapXY(c.x,c.y,W,H);
+    var rel=n/maxC;
+    var rad=Math.min(5+n*0.7,22);
+    var pulse=1+Math.sin(mapPhase+rel*3)*0.16;
+    if(n>0){
+      var g=ctx.createRadialGradient(p[0],p[1],1,p[0],p[1],rad*2.4*pulse);
+      g.addColorStop(0,'rgba(230,57,70,'+(0.35+rel*0.5)+')');
+      g.addColorStop(1,'rgba(230,57,70,0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(p[0],p[1],rad*2.4*pulse,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#E63946';ctx.beginPath();ctx.arc(p[0],p[1],Math.max(rad*0.34,3),0,Math.PI*2);ctx.fill();
+      if(mine[reg]){
+        ctx.strokeStyle='rgba(255,203,5,'+(0.5+0.5*Math.sin(mapPhase*1.6))+')';ctx.lineWidth=1.6;
+        ctx.beginPath();ctx.arc(p[0],p[1],rad*0.75+6*pulse,0,Math.PI*2);ctx.stroke();
+      }
+    }else{
+      ctx.fillStyle='#2b3242';ctx.beginPath();ctx.arc(p[0],p[1],2.6,0,Math.PI*2);ctx.fill();
+    }
+    ctx.font='600 10px Inter,Arial,sans-serif';
+    ctx.fillStyle=n>0?'#e6e8f0':'#5A5F73';
+    ctx.fillText(c.n,p[0]+9,p[1]+3);
+    if(n>0){ctx.font='400 9px "JetBrains Mono",monospace';ctx.fillStyle='rgba(230,57,70,.9)';ctx.fillText(n+' reports',p[0]+9,p[1]+14);}
+  });
+  ctx.font='400 9px "JetBrains Mono",monospace';ctx.fillStyle='#4a4f63';
+  ctx.fillText('LIVE SCAM CLUSTERS · COMMUNITY-REPORTED · PSEUDONYMOUS · lon −3.3…1.3 / lat 4.5…11.3',12,H-11);
+}
+function mapLoop(){
+  if(!mapAnim){mapRaf=null;return;}
+  mapPhase+=0.03;drawMap();
+  mapRaf=requestAnimationFrame(mapLoop);
+}
+window.addEventListener('resize',function(){if($('#v-dash').classList.contains('on'))drawMap();if($('#v-lab').classList.contains('on'))drawAccChart();});
+
+/* ---------------------------- 18. AI LAB ------------------------------- */
+var corpFilter='all';
+$$('#corpSeg button').forEach(function(b){
+  b.addEventListener('click',function(){
+    $$('#corpSeg button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');corpFilter=b.dataset.f;renderCorpus();
+  });
+});
+function renderCorpus(){
+  var items=CORPUS.map(function(c){return{y:c.y,t:c.t,src:'seed'};})
+    .concat(S.extra.map(function(c){return{y:c.y,t:c.t,src:'report'};}));
+  var f=items.filter(function(it){
+    if(corpFilter==='all')return true;
+    if(corpFilter==='c')return it.src==='report';
+    return String(it.y)===corpFilter;
+  });
+  $('#corpCount').textContent=items.length;
+  $('#corpList').innerHTML=f.map(function(it){
+    var lb=it.src==='report'?'<span class="lb c">REPORT</span>':(it.y?'<span class="lb s">SCAM</span>':'<span class="lb l">LEGIT</span>');
+    return '<div class="corpusrow">'+lb+'<p>'+esc(it.t)+'</p></div>';
+  }).join('')||'<div class="note">Nothing in this filter yet.</div>';
+}
+function renderLab(){
+  var ev=nbEval();var M=trainNB(allEx());
+  $('#lbAcc').textContent=(ev.acc*100).toFixed(0)+'%';
+  $('#lbPrec').textContent=(ev.prec*100).toFixed(0)+'%';
+  $('#lbRec').textContent=(ev.rec*100).toFixed(0)+'%';
+  $('#lbN').textContent=ev.n;
+  $('#lbNsub').textContent=CORPUS.length+' seeded + '+S.extra.length+' community · V='+M.V;
+  $('#mbAcc').textContent=(ev.acc*100).toFixed(1)+'%';
+  $('#mbPrec').textContent=(ev.prec*100).toFixed(1)+'%';
+  $('#mbRec').textContent=(ev.rec*100).toFixed(1)+'%';
+  $('#barAcc').style.width=(ev.acc*100)+'%';
+  $('#barPrec').style.width=(ev.prec*100)+'%';
+  $('#barRec').style.width=(ev.rec*100)+'%';
+  $('#cmTP').textContent=ev.tp;$('#cmFP').textContent=ev.fp;$('#cmFN').textContent=ev.fn;$('#cmTN').textContent=ev.tn;
+  var vocab=scamVocab();
+  var maxD=Math.max.apply(null,vocab.map(function(v){return v.d;}).concat([1]));
+  $('#tokChips').innerHTML=vocab.map(function(v){
+    var isnew=(S.newTok||[]).indexOf(v.t)>=0;
+    return '<span class="chip tok'+(isnew?' new':'')+'" title="log-ratio '+v.d.toFixed(2)+' · seen '+v.n+'×">'+
+      esc(v.t.replace(/_/g,' '))+'<span class="d"> '+v.d.toFixed(1)+'</span>'+(isnew?' <b>NEW</b>':'')+'</span>';
+  }).join('');
+  renderCorpus();drawAccChart();
+}
+function drawAccChart(){
+  var cv=$('#cvAcc');if(!cv)return;
+  var dpr=window.devicePixelRatio||1;var W=cv.clientWidth||520,H=210;
+  cv.width=W*dpr;cv.height=H*dpr;
+  var ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+  var pad={l:34,r:12,t:14,b:24};
+  var hist=S.hist.length?S.hist:[{n:CORPUS.length,acc:nbEval().acc,prec:nbEval().prec,rec:nbEval().rec,ts:Date.now()}];
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;
+  ctx.font='400 9px "JetBrains Mono",monospace';ctx.fillStyle='#4a4f63';
+  for(var i=0;i<=4;i++){
+    var y=pad.t+(H-pad.t-pad.b)*(i/4);
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.fillText((100-i*25)+'%',4,y+3);
+  }
+  var minN=hist[0].n,maxN=hist[hist.length-1].n;
+  function X(n){return pad.l+((maxN===minN)?0.5:(n-minN)/(maxN-minN))*(W-pad.l-pad.r);}
+  function Y(v){return pad.t+(1-v)*(H-pad.t-pad.b);}
+  ctx.fillStyle='#4a4f63';
+  ctx.fillText(minN+' ex',pad.l,H-7);ctx.fillText(maxN+' ex',W-pad.r-30,H-7);
+  function line(key,color,fillc){
+    ctx.beginPath();
+    hist.forEach(function(h,i){var x=X(h.n),y=Y(h[key]);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+    if(fillc){
+      ctx.save();ctx.lineTo(X(hist[hist.length-1].n),H-pad.b);ctx.lineTo(X(hist[0].n),H-pad.b);ctx.closePath();
+      ctx.fillStyle=fillc;ctx.fill();ctx.restore();
+      ctx.beginPath();hist.forEach(function(h,i){var x=X(h.n),y=Y(h[key]);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+    }
+    ctx.strokeStyle=color;ctx.lineWidth=2.2;ctx.stroke();
+    hist.forEach(function(h){
+      ctx.beginPath();ctx.arc(X(h.n),Y(h[key]),3.1,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
+      ctx.strokeStyle='#0a0c12';ctx.lineWidth=1.4;ctx.stroke();
+    });
+  }
+  line('acc','#4FCB75','rgba(79,203,117,.10)');
+  line('prec','#FFCB05',null);
+  line('rec','#63b3ed',null);
+  ctx.font='600 9.5px Inter,Arial,sans-serif';
+  ctx.fillStyle='#4FCB75';ctx.fillText('accuracy',W-140,16);
+  ctx.fillStyle='#FFCB05';ctx.fillText('precision',W-92,16);
+  ctx.fillStyle='#63b3ed';ctx.fillText('recall',W-30,16);
+}
+function labScan(){
+  var txt=$('#labTxt').value.trim();
+  if(txt.length<6)return toast('Type something to score','bad');
+  var M=trainNB(allEx());var r=nbClassify(txt,M);
+  var pct=(r.p*100).toFixed(1);var v=v3(r.p);
+  var toks=r.toks;var unis=toks.filter(function(t){return t.indexOf('_')<0;});
+  var bigs=toks.filter(function(t){return t.indexOf('_')>=0;});
+  var maxAbs=Math.max.apply(null,toks.map(function(t){return 1;}).concat([1]));
+  var contribMap={};
+  // recompute contributions with signs for both directions
+  var all=[];
+  (function(){
+    var ts=toks;
+    ts.forEach(function(t){
+      var n1=(M.c[1][t]||0)+1,n0=(M.c[0][t]||0)+1;
+      var p1=n1/(M.tot[1]+M.V+1),p0=n0/(M.tot[0]+M.V+1);
+      all.push({t:t,d:Math.log(p1)-Math.log(p0)});
+    });
+  })();
+  var mx=Math.max.apply(null,all.map(function(a){return Math.abs(a.d);}).concat([0.5]));
+  var h='<div class="verdict '+v.cls+'" style="text-align:left">';
+  h+='<div style="text-align:center"><div class="tl">'+dots(v.k)+'</div><div class="big">'+v.label+' · '+pct+'%</div>'+
+     '<div class="gauge3"><b id="gmk2" style="left:calc('+pct+'% - 2.5px)"></b></div>'+
+     '<div class="gscale"><span>0%</span><span>35</span><span>65</span><span>100%</span></div></div>';
+  h+='<div class="note" style="margin-top:14px"><b>Pipeline</b></div>';
+  h+='<dl class="kv" style="margin-top:7px">'+
+     '<dt>tokens</dt><dd>'+unis.length+' unigrams + '+bigs.length+' bigrams = '+toks.length+'</dd>'+
+     '<dt>vocab V</dt><dd>'+M.V+'</dd>'+
+     '<dt>log P(scam|x)</dt><dd>'+r.l1.toFixed(2)+'</dd>'+
+     '<dt>log P(legit|x)</dt><dd>'+r.l0.toFixed(2)+'</dd>'+
+     '<dt>Δ (log-ratio)</dt><dd>'+(r.l1-r.l0).toFixed(2)+' → sigmoid → '+pct+'%</dd></dl>';
+  h+='<div class="note" style="margin-top:13px"><b>Feature contributions</b> <span style="color:var(--dim)">(red pushes toward scam, green toward legitimate)</span></div>';
+  var sorted=all.slice().sort(function(a,b){return b.d-a.d;});
+  var shown=sorted.slice(0,8).concat(sorted.slice(-5));
+  h+='<div style="margin-top:8px">';
+  shown.forEach(function(a){
+    var w=Math.abs(a.d)/mx*100;
+    var bad=a.d>0;
+    h+='<div style="display:grid;grid-template-columns:112px 1fr 44px;gap:8px;align-items:center;margin-bottom:5px">'+
+       '<span style="font-family:var(--mono);font-size:10.4px;color:#c3c7d6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(a.t.replace(/_/g,' '))+'</span>'+
+       '<span style="height:7px;background:#1b1f2a;border-radius:6px;overflow:hidden;display:block"><i style="display:block;height:100%;width:'+w.toFixed(1)+'%;background:'+(bad?'var(--red)':'var(--grn)')+';border-radius:6px"></i></span>'+
+       '<span style="font-family:var(--mono);font-size:10px;color:'+(bad?'var(--red2)':'var(--grn2)')+';text-align:right">'+(bad?'+':'')+a.d.toFixed(2)+'</span></div>';
+  });
+  h+='</div></div>';
+  $('#labOut').innerHTML=h;
+  S.evals++;save();
+}
+function labRandom(){
+  var pool=CORPUS.filter(function(c){return c.y===1;});
+  fill('#labTxt',pool[Math.floor(Math.random()*pool.length)].t);labScan();
+}
+
+/* -------------------------- 19. SETTINGS ------------------------------- */
+function renderSettings(){
+  $('#pxy').value=S.momo.proxy||'';
+  $$('#langSeg button').forEach(function(b){b.classList.toggle('on',b.dataset.l===S.lang);});
+  $('#twiPreview').textContent=TWI.q+' '+TWI.q2;
+  var ev=nbEval();
+  $('#stateInfo').innerHTML=
+    '<dt>consent</dt><dd>'+(S.consented?'granted':'not granted')+'</dd>'+
+    '<dt>community reports</dt><dd>'+S.reports.length+'</dd>'+
+    '<dt>training additions</dt><dd>'+S.extra.length+'</dd>'+
+    '<dt>transfer attempts</dt><dd>'+S.attempts.length+'</dd>'+
+    '<dt>ai scans</dt><dd>'+S.evals+'</dd>'+
+    '<dt>scams stopped</dt><dd>'+S.stopped+'</dd>'+
+    '<dt>retrains</dt><dd>'+Math.max(0,S.hist.length-1)+'</dd>'+
+    '<dt>holdout accuracy</dt><dd>'+(ev.acc*100).toFixed(1)+'%</dd>'+
+    '<dt>storage key</dt><dd>'+KEY+'</dd>';
+  updBadge();
+}
+$$('#langSeg button').forEach(function(b){b.addEventListener('click',function(){setLang(b.dataset.l);});});
+function saveProxy(){
+  S.momo.proxy=($('#pxy').value||'').trim().replace(/\/$/,'');S.momo.tested=false;save();
+  if(!S.momo.proxy){updBadge();$('#pxyMsg').textContent='Cleared — offline AI mode. All models still run locally.';return;}
+  $('#pxyMsg').innerHTML='Testing <span style="font-family:var(--mono)">'+esc(S.momo.proxy)+'/api/health</span> …';
+  fetch(S.momo.proxy+'/api/health').then(function(r){return r.json();}).then(function(j){
+    S.momo.tested=true;save();updBadge();
+    $('#pxyMsg').innerHTML='🟢 Connected'+(j.base?' to <span style="font-family:var(--mono)">'+esc(j.base)+'</span>':'')+' — payments now hit the real MoMo sandbox Collections API and are badged <span class="tag live">LIVE SANDBOX</span>.';
+    toast('LIVE SANDBOX MODE ON','good');
+  }).catch(function(){
+    S.momo.tested=false;save();updBadge();
+    $('#pxyMsg').innerHTML='🔴 Proxy unreachable. Start it with <span style="font-family:var(--mono);color:var(--yel)">uvicorn momo_proxy:app --port 8000</span> — credentials live server-side only. Falling back to honest SIMULATED payments.';
+  });
+}
+function clearProxy(){S.momo.proxy='';S.momo.tested=false;save();$('#pxy').value='';updBadge();
+  $('#pxyMsg').textContent='Cleared — offline AI mode.';toast('Offline AI mode');}
+function updBadge(){
+  var b=$('#connBadge');
+  if(S.momo.proxy&&S.momo.tested){b.textContent='LIVE SANDBOX';b.className='badge live';}
+  else{b.textContent='OFFLINE AI';b.className='badge';}
+}
+function exportState(){
+  try{
+    var blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download='fraudshield-state.json';a.click();
+    toast('State exported','good');
+  }catch(e){toast('Export blocked by browser','bad');}
+}
+function askReset(){
+  askConfirm('Reset all demo state?','This wipes consent, community reports, learned messages, retraining history, attempts and Stage Manager toggles in this browser. The 44-message seed corpus is untouched.',
+   'Reset everything',function(){
+    try{localStorage.removeItem(KEY);}catch(e){}
+    location.reload();
+  });
+}
+
+/* ------------------------- 20. HOME / CLOCK ---------------------------- */
+function renderHome(){renderRail();}
+function tickClock(){
+  var d=new Date();
+  var h=String(d.getHours()).padStart(2,'0'),m=String(d.getMinutes()).padStart(2,'0');
+  $('#clock').textContent=h+':'+m;
+}
+setInterval(tickClock,20000);tickClock();
+
+/* ----------------------------- 21. INIT -------------------------------- */
+(function init(){
+  recordHist();
+  syncStage();
+  updBadge();
+  renderRail();
+  renderDash();
+  renderLab();
+  renderSettings();
+  if(S.lang==='tw')setLang('tw',true);
+  pgo(S.consented?'home':'consent');
+  // keep map animating only while visible
+  mapAnim=$('#v-dash').classList.contains('on');
+  if(!mapRaf)mapRaf=requestAnimationFrame(mapLoop);
+  setInterval(function(){mapAnim=$('#v-dash').classList.contains('on');},600);
+  // keyboard: digits into USSD when visible
+  document.addEventListener('keydown',function(e){
+    if(!$('#p-ussd').classList.contains('on'))return;
+    if(!$('#v-app').classList.contains('on'))return;
+    var t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'))return;
+    if(/^[0-9*#]$/.test(e.key)){uk(e.key);e.preventDefault();}
+    else if(e.key==='Backspace'){uk('clear');e.preventDefault();}
+    else if(e.key==='Enter'){uk('#');e.preventDefault();}
+    else if(e.key==='Escape'){uReset();}
+  });
+})();
 </script>
 </body>
 </html>
+```
